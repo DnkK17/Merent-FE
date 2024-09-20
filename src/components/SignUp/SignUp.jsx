@@ -1,0 +1,118 @@
+import React from 'react';
+import { Button, Checkbox, Form, Input,message } from 'antd';
+import '../SignUp/SignUp.css'
+import axios from 'axios';
+import loginPic from "../HomePage/images/loginPic.png";
+const onFinish = async (values) => {
+  try {
+    const response = await axios.post('https://localhost:7253/api/Authentication/Register', {
+      phoneNumber: values.phoneNumber,
+      gender: values.gender,
+      email: values.email,
+      password: values.password
+    });
+    if (response.status === 200) {
+      message.success('Đăng ký thành công');
+      console.log('Register successful:', response.data);
+     
+       localStorage.setItem('token', response.data.token);
+       redirect("/");
+    }
+  } catch (error) {
+    console.error('Login failed:', error);
+    message.error('Đăng ký thất bại, vui lòng kiểm tra lại thông tin');
+  }
+};
+const onFinishFailed = (errorInfo) => {
+  console.log('Failed:', errorInfo);
+};
+const SignUp = () => (
+    <div className='form-body'>
+    <div className="form-container">
+    <div className="form-title">
+       <p>Đăng Ký</p> 
+        </div>
+    <Form
+      name="basic"
+      initialValues={{ remember: true }}
+      onFinish={onFinish}
+      onFinishFailed={onFinishFailed}
+      autoComplete="off"
+      layout="vertical" // Switch to vertical layout
+    
+    >
+      <Form.Item
+        label="Số điện thoại"
+        name="phoneNumber"
+        rules={[{ required: true, message: 'Nhập sđt của bạn' }]}
+      >
+        <Input placeholder="Nhập sđt của bạn" />
+      </Form.Item> 
+
+      <Form.Item
+        label="Giới tính"
+        name="gender"
+        rules={[{ required: true, message: 'Nhập giới tính của bạn' }]}
+      >
+        <Input placeholder="Nhập giới tính của bạn" />
+      </Form.Item>
+      
+      <Form.Item
+        label="Họ và tên"
+        name="fullname"
+        rules={[{ required: true, message: 'Nhập tên của bạn' }]}
+      >
+        <Input placeholder="Nhập tên của bạn" />
+      </Form.Item>
+
+      <Form.Item
+        label="Địa chỉ email"
+        name="email"
+        rules={[{ required: true, message: 'Nhập địa chỉ email của bạn' }]}
+      >
+        <Input placeholder="Nhập địa chỉ email của bạn" />
+      </Form.Item>
+
+      <Form.Item
+        label="Mật khẩu"
+        name="password"
+        rules={[{ required: true, message: 'Nhập mật khẩu của bạn' }]}
+      >
+        <Input.Password placeholder="Nhập mật khẩu của bạn" />
+      </Form.Item>
+
+      <Form.Item
+        name="remember"
+        valuePropName="checked"
+      >
+        <Checkbox>Tôi đồng ý với các điều khoản và chính sách</Checkbox>
+      </Form.Item>
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block>
+          Đăng ký
+        </Button>
+      </Form.Item>
+    </Form>
+    {/* <div className="social-login">
+      <p>Or</p>
+      <Button icon={<GoogleIcon />} block>
+        Sign in with Google
+      </Button>
+      <Button icon={<AppleIcon />} block>
+        Sign in with Apple
+      </Button>
+    </div> */}
+    <div className="login-link">
+      <p>Có một tài khoản? <a href="/login">Đăng nhập</a></p>
+    </div>
+    </div>
+    <div className="form-pic">
+      <img
+        src={loginPic}
+        alt="Form Illustration"
+      />
+    </div>
+  </div>
+);
+export default SignUp;

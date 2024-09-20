@@ -1,0 +1,71 @@
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px;
+    background-color: #fff;
+    padding-left: 300px;
+    text-align: center;
+  }
+  
+  .form-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 24px;
+
+    color: #000;
+  }
+  .form-title p{
+    text-align: left;
+  }
+  .ant-form-item {
+    margin-bottom: 16px;
+  }
+  
+  .ant-btn {
+    background-color: #000; /* Update to your desired color */
+    border: none;
+  }
+  
+  .social-login {
+    margin-top: 20px;
+  }
+  
+  .login-link {
+    margin-top: 20px;
+    color: #000;
+  
+  }
+
+  .form-body {
+  display: flex;
+  justify-content: center; /* Align items horizontally */
+  align-items: center; /* Align items vertically */
+  padding: 20px;
+}
+
+.form-container {
+  flex: 1; /* Allow the form to take up as much space as it needs */
+   /* Limit the maximum width of the form */
+  margin-right: 20px; /* Space between the form and image */
+}
+
+.form-pic{
+
+    width: 700px;
+    height: 700px;
+    margin-right: 10%;
+}
+.camera-pic img{
+  width: 700px;
+}
+
+.form-pic img {
+  width: 100%; /* Make sure the image does not exceed its container's width */
+ height: 100%;
+  
+}
+.info-title{
+  color: #000;
+  margin-left: 0;
+  text-align: start;
+}
