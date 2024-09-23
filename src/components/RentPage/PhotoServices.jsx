@@ -25,11 +25,11 @@ const services = [
 
 const PhotoServices = () => {
   return (
-    <div style={{ padding: '50px' }}>
+    <div >
       <h2 className='header-title' style={{ textAlign: 'center' }}>CHO THUÊ STUDIO</h2>
       <Row gutter={[16, 16]} justify="center">
         {services.map(service => (
-          <Col key={service.id} xs={24} sm={12} md={8} lg={8}>
+          <Col className='column-services' key={service.id} xs={24} sm={12} md={8} lg={8}>
              <Card
               hoverable
               cover={<img alt={service.title} src={service.image} />}

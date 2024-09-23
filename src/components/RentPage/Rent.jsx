@@ -2,16 +2,21 @@ import React, { useState } from 'react';
 import { Layout, Row, Col, Card, Button } from 'antd';
 import './Rent.css';
 import sony from "../HomePage/images/sony.jpg";
-
+import camerasBackground from "../HomePage/images/camerasBackground.png"
+import EOSR1 from "../HomePage/images/EOSR1.jpg"
+import EOSR50 from "../HomePage/images/EOSR50.png"
+import EOSR100 from "../HomePage/images/EOSR100.png"
+import EOSR5 from "../HomePage/images/EOSR5.png"
+import EOSR1ngang from "../HomePage/images/EOSR1ngang.png"
+import EOSR1sau from "../HomePage/images/EOSR1sau.png"
+import EOSR1tren from "../HomePage/images/EOSR1tren.png"
 const { Content } = Layout;
 
 const products = [
-  { id: 1, name: "EOS R1", price: "350.000VNĐ", description: "Là mẫu máy ảnh thế hệ thứ 4 thuộc dòng máy ảnh EOS full-frame bán chạy nhất của Canon, EOS 5D Mark IV là sự kết hợp của tính chuyên nghiệp đi kèm những cải tiến đáng giá. Cảm biến CMOS full-frame 30.4 megapixel được trang bị cùng với công nghệ Dual Pixel CMOS AF thời thượng giúp lấy nét tự động nhanh hơn và chính xác hơn không chỉ đối với ảnh tĩnh mà còn quay phim 4K và quay phim thể loại footage một cách chuyên nghiệp. ", imgSrc: sony, images: [sony, sony, sony] },
-  { id: 2, name: "EOS R5 Mark II", price: "500.000VNĐ", description: "Mô tả chi tiết sản phẩm EOS R5 Mark II...", imgSrc: sony, images: [sony, sony, sony] },
-  { id: 3, name: "EOS R100", price: "700.000VNĐ", description: "Mô tả chi tiết sản phẩm EOS R100", imgSrc: sony, images: [sony, sony, sony] },
-  { id: 4, name: "EOS R50", price: "800.000VNĐ", description: "Mô tả chi tiết sản phẩm EOS R50", imgSrc: sony, images: [sony, sony, sony] },
-  { id: 5, name: "Sony A7III", price: "350.000VNĐ",description: "Mô tả chi tiết sản phẩm Sony A7III", imgSrc: sony, images: [sony, sony, sony] },
-  { id: 6, name: "Sony A7IV", price: "500.000VNĐ", description: "Mô tả chi tiết sản phẩm Sony A7IV", imgSrc: sony, images: [sony, sony, sony] },
+  { id: 1, name: "EOS R1", price: "350.000VNĐ", description: "Là mẫu máy ảnh thế hệ thứ 4 thuộc dòng máy ảnh EOS full-frame bán chạy nhất của Canon, EOS 5D Mark IV là sự kết hợp của tính chuyên nghiệp đi kèm những cải tiến đáng giá. Cảm biến CMOS full-frame 30.4 megapixel được trang bị cùng với công nghệ Dual Pixel CMOS AF thời thượng giúp lấy nét tự động nhanh hơn và chính xác hơn không chỉ đối với ảnh tĩnh mà còn quay phim 4K và quay phim thể loại footage một cách chuyên nghiệp. ", imgSrc: EOSR1, images: [EOSR1ngang, EOSR1sau, EOSR1tren] },
+  { id: 2, name: "EOS R5 Mark II", price: "500.000VNĐ", description: "Mô tả chi tiết sản phẩm EOS R5 Mark II...", imgSrc: EOSR5, images: [sony, sony, sony] },
+  { id: 3, name: "EOS R100", price: "700.000VNĐ", description: "Mô tả chi tiết sản phẩm EOS R100", imgSrc: EOSR100, images: [sony, sony, sony] },
+  { id: 4, name: "EOS R50", price: "800.000VNĐ", description: "Mô tả chi tiết sản phẩm EOS R50", imgSrc: EOSR50, images: [sony, sony, sony] },
 ];
 const categories = [
   { id: 1, name: "Máy ảnh" },
@@ -94,14 +99,14 @@ function Rent() {
 
         {/* Hiển thị các sản phẩm khác */}
         <div className='related-products-section'>
-          <h2 className="section-title">MÁY ẢNH / MÁY CHỤP HÌNH</h2>
+          <h2 className="section-title">MÁY ẢNH / MÁY QUAY PHIM</h2>
           <Row gutter={[16, 50]} justify="center">
             {products
               .filter(product => product !== selectedProduct)
               .map(product => (
                 <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
                   <Card
-                    className="custom-card"
+                    className="custom-cardz"
                     hoverable
                     cover={<img alt={product.name} src={product.imgSrc} className="product-image" />}
                     onClick={() => handleProductClick(product)}

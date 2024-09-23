@@ -3,23 +3,25 @@ import { Button, Checkbox, Form, Input,message } from 'antd';
 import '../SignUp/SignUp.css'
 import axios from 'axios';
 import loginPic from "../HomePage/images/loginPic.png";
+import { api } from '../../services/apiConfig';
+
 const onFinish = async (values) => {
   try {
-    const response = await axios.post('https://localhost:7253/api/Authentication/Register', {
-      phoneNumber: values.phoneNumber,
-      gender: values.gender,
+    const response = await api.post("/Authentication/Register", {
+      name: values.name,
       email: values.email,
-      password: values.password
+      password: values.password,
+      phoneNumber: values.phoneNumber,
+      gender: values.gender
     });
     if (response.status === 200) {
       message.success('Đăng ký thành công');
       console.log('Register successful:', response.data);
      
        localStorage.setItem('token', response.data.token);
-       redirect("/");
     }
   } catch (error) {
-    console.error('Login failed:', error);
+    console.error('Register failed:', error);
     message.error('Đăng ký thất bại, vui lòng kiểm tra lại thông tin');
   }
 };
@@ -41,25 +43,10 @@ const SignUp = () => (
       layout="vertical" // Switch to vertical layout
     
     >
-      <Form.Item
-        label="Số điện thoại"
-        name="phoneNumber"
-        rules={[{ required: true, message: 'Nhập sđt của bạn' }]}
-      >
-        <Input placeholder="Nhập sđt của bạn" />
-      </Form.Item> 
-
-      <Form.Item
-        label="Giới tính"
-        name="gender"
-        rules={[{ required: true, message: 'Nhập giới tính của bạn' }]}
-      >
-        <Input placeholder="Nhập giới tính của bạn" />
-      </Form.Item>
       
       <Form.Item
         label="Họ và tên"
-        name="fullname"
+        name="name"
         rules={[{ required: true, message: 'Nhập tên của bạn' }]}
       >
         <Input placeholder="Nhập tên của bạn" />
@@ -79,6 +66,21 @@ const SignUp = () => (
         rules={[{ required: true, message: 'Nhập mật khẩu của bạn' }]}
       >
         <Input.Password placeholder="Nhập mật khẩu của bạn" />
+      </Form.Item>
+      <Form.Item
+        label="Số điện thoại"
+        name="phoneNumber"
+        rules={[{ required: true, message: 'Nhập sđt của bạn' }]}
+      >
+        <Input placeholder="Nhập sđt của bạn" />
+      </Form.Item> 
+
+      <Form.Item
+        label="Giới tính"
+        name="gender"
+        rules={[{ required: true, message: 'Nhập giới tính của bạn' }]}
+      >
+        <Input placeholder="Nhập giới tính của bạn" />
       </Form.Item>
 
       <Form.Item

@@ -1,177 +1,198 @@
 .layout {
-    background: #fff;
-  }
-  
-  .header {
-    background: #001529; /* Ensures visibility against the menu */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 50px;
+  background: #fff;
+}
 
-  }
-  
-  .logo img {
-    height: 50px;
-    margin-right: 20px;
-  }
-  
-  .ant-menu {
-    line-height: 64px; /* Ensures the menu aligns with the header height */
-  }
-  
-  .site-banner {
-    text-align: center;
-    margin: 20px 0;
-  }
-  
-  .banner-image {
-    width: 100%;
-    max-height: 400px;
-    object-fit: cover;
-  }
-  
-  .site-product-section {
-    padding: 20px 0;
-    border-style: solid;
-    border-width: 1px;
-    margin: 0 auto;
-    background-color: #e4e6e8;
-    width: 90%;
-    padding-bottom: 40px;
-  }
-  
-  .section-title {
-    text-align: center;
-    font-size: 24px;
-    margin-bottom: 40px;
-    margin-top: -20px;
-    color: white;
-    background-color: #082C44;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    
-  }
-  
-  .ant-card-cover img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+.header {
+  background: #001529; /* Ensures visibility against the menu */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 50px;
 
-  }
-  
-  .newsletter-section {
-    padding: 40px 0;
-    background-color: #f0f2f5;
-    text-align: center;
-    margin-top: 40px;
-  }
-  
-  .footer {
-    text-align: center;
-    background-color: #001529;
-    color: #fff;
-    padding: 20px 0;
-  }
-  
-  .footer-title {
-    font-size: 24px;
-    color: #fff;
-  }
-  .form-title p {
-    white-space: nowrap; /* Prevents text from wrapping to the next line */
-    overflow: visible;   /* Ensures text is visible */
-    text-overflow: clip; /* Displays the full text without cutting it off */
-    font-size: 24px;     /* Adjust as needed */
-    font-weight: bold;   /* Make the text bold to match the image style */
+}
+
+.logo img {
+  height: 50px;
+  margin-right: 20px;
+}
+
+.ant-menu {
+  line-height: 64px; /* Ensures the menu aligns with the header height */
+}
+
+.site-banner {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.banner-image {
+  width: 100%;
+  max-height: 400px;
+  object-fit: cover;
+}
+
+.site-product {
+  padding: 20px 0;
+  border-style: none;
+  margin: 0 auto;
+
+  width: 90%;
+  padding-bottom: 40px;
+}
+
+.home-canon{
+  width: 100%;
+  padding-bottom: 100px;
+}
+.home-canon img{
+  width: 95%;
+}
+.ant-card-cover img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+
+}
+.home-camera img{
+  width: 80%;
+  margin-right: 20px;
+  padding-bottom: 50px;
+}
+
+.newsletter-section {
+  padding: 40px 0;
+  background-color: #f0f2f5;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.footer {
+  text-align: center;
+  background-color: #001529;
+  color: #fff;
+  padding: 20px 0;
+}
+
+.footer-title {
+  font-size: 24px;
+  color: #fff;
+}
+.form-title p {
+  white-space: nowrap; /* Prevents text from wrapping to the next line */
+  overflow: visible;   /* Ensures text is visible */
+  text-overflow: clip; /* Displays the full text without cutting it off */
+  font-size: 24px;     /* Adjust as needed */
+  font-weight: bold;   /* Make the text bold to match the image style */
 }
 .Menu{
-    margin-bottom: 50px;
-    padding-bottom: 20px;
-    padding-top: 20px;
-    margin-top: 20px;
-    width: 100%;
-    
+  margin-bottom: 50px;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  margin-top: 20px;
+  width: 100%;
+  
 }
 
 .ant-card{
-    width: 250px;
-    margin: 0 auto;
-    padding-bottom: 10px;
+  width: 250px;
+
+  margin: 0 auto;
+  padding-bottom: 10px;
+}
+.custom-cards {
+ border: none;
+}
+
+.custom-cards img {
+  height: 250px; 
+  object-fit: contain;
+  box-shadow: 5px 7px 20px rgba(121, 118, 118, 0.2);
 }
 .and-col{
-  padding: 20px;
+padding: 20px;
 }
 .ant-menu-title-content{
-    margin: 50px;
-    font-weight: bold;
-    color: #072D44;
-    
+  margin: 50px;
+  font-weight: bold;
+  color: #072D44;
+  
 }
 .home-studio img{
-    width: 100%;
-    height: 700px;
+  width: 100%;
+  object-fit: cover;
 }
 .home-studio{
-    width: 100%;
-    margin-bottom: 50px;
+  width: 100%;
+  margin-bottom: 50px;
 }
 
 
 .footer {
-  background-color: #0d1b2a;
-  color: white;
-  padding: 40px 20px;
+background-color: #0d1b2a;
+color: white;
+padding: 40px 20px;
 }
 
 .footer-content {
-  max-width: 1200px;
-  margin: 0 auto;
+max-width: 1200px;
+margin: 0 auto;
 
 }
 
 .footer-title {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 20px;
+font-size: 2rem;
+font-weight: bold;
+margin-bottom: 20px;
 }
 
 .footer-btn {
-  background-color: #ffffff;
-  color: #0d1b2a;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+background-color: #ffffff;
+color: #0d1b2a;
+padding: 10px 20px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
 }
 
 .footer-list {
-  list-style: none;
-  padding: 0;
+list-style: none;
+padding: 0;
 }
 
 .footer-list li {
-  margin-bottom: 10px;
+margin-bottom: 10px;
 }
 
 .footer-bottom {
-  margin-top: 40px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  padding-top: 20px;
+margin-top: 40px;
+border-top: 1px solid rgba(255, 255, 255, 0.2);
+padding-top: 20px;
 }
 
 .footer-icons {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+display: flex;
+justify-content: flex-end;
+align-items: center;
 }
 
 .footer-icon {
-  margin: 0 auto;
-  cursor: pointer;
+margin: 0 auto;
+cursor: pointer;
 
 }
 .page-logo img{
-  width: 200px;
-  margin-left: 20px;
+width: 200px;
+margin-left: 20px;
+}
+
+.section-titl {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 40px;
+  margin-top: -20px;
+  color: rgb(237, 39, 39);
+  background-color: #ffffff;
+  padding-top: 10px;
+  padding-bottom: 40px;
+  
 }

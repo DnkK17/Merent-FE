@@ -8,16 +8,20 @@
 
     font-size: 24px;
     font-weight: bold;
-    color: white;
+    color: #002c5f;
     margin-bottom: 40px;
-    background-color: #002c5f;
+    background-color: white;
+    padding-top: 20px;
+    padding-bottom: 20px;
   }
   
-  .custom-card {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
+  .custom-cardz {
+    border: none;
+  }
+  .custom-cardz img{
+    height: 250px; 
+    object-fit: contain;
+    box-shadow: 5px 7px 20px rgba(121, 118, 118, 0.2);
   }
   
   .custom-card:hover {
@@ -88,12 +92,12 @@
     border-style: solid;
     border-width: 01px;
     border-radius: 60px;
+
   }
   
   .related-products-section {
     margin: 0 auto;
     width: 88%;
-
   }
 .col_prod {
   color: rgb(25, 80, 80);

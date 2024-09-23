@@ -15,7 +15,12 @@
     color: #000;
 
     margin-top: 0;
+    padding-bottom: 40px;
   }
 .h2{
     text-align: left;
+
 }  
+.column-services{
+  margin: 0 auto;
+}
