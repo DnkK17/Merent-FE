@@ -8,21 +8,18 @@ import { api } from '../../services/apiConfig';
 const Login = () => {
   const navigate = useNavigate(); // Gọi useNavigate dưới dạng hàm
 
+
   const onFinish = async (values) => {
     try {
       const response = await api.post("/Authentication/Login", {
         email: values.email,
         password: values.password
       });
-
+      const user = response.data;
       if (response.status === 200) {
         message.success('Đăng nhập thành công');
-        console.log('Login successful:', response.data);
-
-        // Lưu token vào localStorage
-        localStorage.setItem('token', response.data.token);
-        
-        // Điều hướng sau khi đăng nhập thành công
+        console.log('Login successful:', JSON.stringify(user));
+        localStorage.setItem('name',user.name);
         navigate("/");
       }
     } catch (error) {
