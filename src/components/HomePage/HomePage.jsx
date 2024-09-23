@@ -3,6 +3,7 @@ import { Layout, Menu, Row, Col, Card, Input, Button } from 'antd';
 import './HomePage.css';
 import logoPage from "../HomePage/images/logoPage.png";
 import studioPage from "../HomePage/images/studioPage.png";
+import newBackground from '../HomePage/images/newBackground.png';
 import { Navigate, useNavigate } from 'react-router-dom';
 import sony from "../HomePage/images/sony.jpg"
 const { Header, Content, Footer } = Layout;
@@ -43,7 +44,7 @@ function HomePage() {
     <Layout className="layout">
       
         <div className='home-studio'>
-            <img src={studioPage}></img>
+            <img src={newBackground}></img>
         </div>
       {/* Main Content */}
       <Content style={{ padding: '0 50px' }}>

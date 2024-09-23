@@ -4,13 +4,13 @@ import axios from 'axios';
 import '../Login/Login.css';
 import loginPic from "../HomePage/images/loginPic.png";
 import { useNavigate } from 'react-router-dom';
-
+import { api } from '../../services/apiConfig';
 const Login = () => {
   const navigate = useNavigate(); // Gọi useNavigate dưới dạng hàm
 
   const onFinish = async (values) => {
     try {
-      const response = await axios.post('https://localhost:7253/api/Authentication/Login', {
+      const response = await api.post("/Authentication/Login", {
         email: values.email,
         password: values.password
       });
