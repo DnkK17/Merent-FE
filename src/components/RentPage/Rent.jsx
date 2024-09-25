@@ -18,20 +18,14 @@ const products = [
   { id: 3, name: "EOS R100", price: "700.000VNĐ", description: "Mô tả chi tiết sản phẩm EOS R100", imgSrc: EOSR100, images: [sony, sony, sony] },
   { id: 4, name: "EOS R50", price: "800.000VNĐ", description: "Mô tả chi tiết sản phẩm EOS R50", imgSrc: EOSR50, images: [sony, sony, sony] },
 ];
-const categories = [
-  { id: 1, name: "Máy ảnh" },
-  { id: 2, name: "Ống kính" },
-  { id: 3, name: "Chân máy" },
-  { id: 4, name: "Ánh sáng" },
-  { id: 5, name: "Fly Cam" }
-];
+
 function Rent() {
   const [selectedProduct, setSelectedProduct] = useState(null); // Không chọn sản phẩm mặc định
 
   const handleProductClick = (product) => {
     setSelectedProduct(product); // Khi nhấn vào sản phẩm, set nó thành selectedProduct
     window.scrollTo({
-      top: 240  ,
+      top: 350  ,
       behavior: 'smooth' // Tạo hiệu ứng cuộn mượt
     });
   };
@@ -50,23 +44,12 @@ function Rent() {
     <Layout className="layout">
       <Content style={{ padding: '0 50px' }}>
         {/* Hiển thị sản phẩm được chọn */}
-        <div className="category-section">
-          <Row gutter={[16, 16]} justify="center">
-            {categories.map(category => (
-              <Col key={category.id}>
-                <Button type="default" className="category-button">
-                  {category.name}
-                </Button>
-              </Col>
-            ))}
-          </Row>
-        </div>
         {selectedProduct && (
           <div className='selected-product'>
-            <Row gutter={[16, 16]} justify="center">
-              <Col xs={24} sm={24} md={12} lg={12}>
+            <Row className='camera-detail' gutter={[16, 16]} justify="center">
+              <Col  xs={24} sm={24} md={12} lg={12}>
                 <img alt={selectedProduct.name} src={selectedProduct.imgSrc} className="product-image-large" />
-                <Row gutter={[16, 16]} justify="center" className="small-images-row">
+                <Row gutter={[16, 16]} justify="space-between" className="small-images-row">
                   {selectedProduct.images.map((img, index) => (
                     <Col key={index} xs={6}>
                       <img alt={`${selectedProduct.name} - ${index}`} src={img} className="product-image-small" />
@@ -75,6 +58,7 @@ function Rent() {
                 </Row>
               </Col>
               <Col  xs={24} sm={24} md={12} lg={6}>
+              <div className='camera-description'>
                 <h1>{selectedProduct.name}</h1>
                 <h2 style={{ color: 'red' }}>{selectedProduct.price}</h2>
                 <p>{selectedProduct.description}</p>
@@ -92,9 +76,12 @@ function Rent() {
                 </Button>
                 </div>
                 <Button type="primary" style={{ marginTop: '10px' }}>Thêm vào giỏ</Button>
+                </div>
               </Col>
             </Row>
+            
           </div>
+          
         )}
 
         {/* Hiển thị các sản phẩm khác */}
@@ -104,7 +91,7 @@ function Rent() {
             {products
               .filter(product => product !== selectedProduct)
               .map(product => (
-                <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
+                <Col key={product.id} xs={24} sm={24} md={12} lg={6}>
                   <Card
                     className="custom-cardz"
                     hoverable

@@ -20,6 +20,7 @@ const Login = () => {
         message.success('Đăng nhập thành công');
         console.log('Login successful:', JSON.stringify(user));
         localStorage.setItem('name',user.name);
+        localStorage.setItem('token',user);
         navigate("/");
       }
     } catch (error) {

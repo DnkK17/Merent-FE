@@ -5,38 +5,67 @@ import { useNavigate } from 'react-router-dom';
 import logoPage from "../HomePage/images/logoPage.png";
 
 const { Header } = Layout;
-
+console.log(localStorage.getItem('name'));
 function HeaderPage() {
   const navigate = useNavigate();
 
-  // State để lưu trạng thái đăng nhập và tên người dùng
   const [name, setName] = useState('');
 
   useEffect(() => {
-    // Lấy tên người dùng từ localStorage
+
     const storedUsername = localStorage.getItem('name');
     if (storedUsername) {
       setName(storedUsername);
     }
-  }, []); // Chỉ chạy khi component được render lần đầu
+  }, []); 
 
   const handleMenuClick = (e) => {
-    navigate(`/${e.key}`);
+    if (e.key === 'Logout') {
+      localStorage.removeItem('name');
+      setName('');
+      navigate('/');
+
+    } else {
+      // Navigate to other routes
+      navigate(`/${e.key}`);
+    }
   };
 
-  // Cập nhật menuItems dựa trên trạng thái đăng nhập
   const menuItems = [
     { label: 'GIỚI THIỆU', key: 'About' },
-    { label: 'CHO THUÊ MÁY ẢNH', key: 'Rent' },
-    { label: 'DỊCH VỤ', key: 'Services' },
-    { label: 'BÁO GIÁ', key: 'Pricing' },
-    { label: 'WORKSHOP VIDEO', key: 'Workshop' },
+    { 
+      label: 'CHO THUÊ MÁY ẢNH', 
+      key: 'submenu', 
+      children: [
+        { label: 'Máy ảnh', key: 'Rent/Cameras' },
+        { label: 'Ống kính', key: 'Rent/Lens' },
+        { label: 'Gimbal', key: 'Rent/Gimbal' },
+        { label: 'Ánh sáng', key: 'Rent/Lighting' },
+      ],
+    },
+    { label: 'DỊCH VỤ',
+       key: 'Services',
+       children: [
+        { label: 'Cho thuê studio', key: 'Services/Studio' },
+        { label: 'Chụp hình concept', key: 'Services/Concept' },
+        { label: 'Quay vlog', key: 'Services/Vlog' },
+        { label: 'Live stream', key: 'Services/Live-stream' },
+      ],
+      },
+    { label: 'ĐIỀU KHOẢN', key: 'Pricing' },
+    { label: 'WORKSHOP', key: 'Workshop' },
     { label: 'COMBO', key: 'Combo' },
     { label: 'GIỎ HÀNG', key: 'Cart' },
-    { 
-      label: name ? `Hi, ${name}` : 'ĐĂNG NHẬP', 
-      key: name ? 'Profile' : 'Login' 
-    }
+    name
+    ? {
+        label: `Hi, ${name}`,
+        key: 'Profile',
+        children: [
+          { label: 'Thông tin cá nhân', key: 'Profile' },
+          { label: 'Đăng xuất', key: 'Logout' },
+        ],
+      }
+    : { label: 'ĐĂNG NHẬP', key: 'Login' }
   ];
 
   return (

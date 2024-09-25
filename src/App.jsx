@@ -10,6 +10,7 @@ import About from "./components/AboutPage/About";
 import Rent from "./components/RentPage/Rent";
 import PhotoServices from "./components/RentPage/PhotoServices";
 function App(){
+  const user = localStorage.getItem('name');
   return (
     <BrowserRouter>
 
@@ -19,8 +20,8 @@ function App(){
         <Route path="/" element={<MainPage />}>
           <Route index element={<HomePage />} />
           <Route path="/About" element={<About />} />
-          <Route path="/Rent" element={<Rent/>}/>
-          <Route path="/Services" element={<PhotoServices/>}/>
+          <Route path="/Rent/Cameras" element={<Rent/>}/>
+          <Route path="/Services/Studio" element={<PhotoServices/>}/>
         </Route>
         
       </Routes>
