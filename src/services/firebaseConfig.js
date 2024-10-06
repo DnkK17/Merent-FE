@@ -1,32 +1,20 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from 'firebase/app';
+import { getStorage } from 'firebase/storage';
+import { getFirestore } from 'firebase/firestore';
 
-import { initializeApp } from "firebase/app";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-
-)
 const firebaseConfig = {
-
+  apiKey: "AIzaSyB1IiprNdjO-koO9jIFUm7ADitSraRcLRk",
+  authDomain: "merent-242d6.firebaseapp.com",
+  projectId: "merent-242d6",
+  storageBucket: "merent-242d6.appspot.com",
+  messagingSenderId: "585603417443",
+  appId: "1:585603417443:web:4ce1c1c6168469a7b07f56"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const storage = getStorage(app);
 
-// Hàm upload ảnh và trả về URL
-export const uploadImage = async (file: File): Promise<string> => {
-  try {
-    //Random file name
-    const randomName = Math.random().toString(36).substring(7);
-    // Tạo một tham chiếu tới nơi lưu trữ trong Firebase Storage
-    const storageRef = ref(storage, `images/${file.name}`+randomName);
-
-    // Sử dụng uploadBytesResumable để upload file
-    const uploadTask = await uploadBytesResumable(storageRef, file);
-
-    // Sau khi upload hoàn thành, lấy URL của ảnh đã upload
-    const downloadURL = await getDownloadURL(uploadTask.ref);
-
-    return downloadURL; // Trả về URL của ảnh
-  } catch (error:any) {
-    throw new Error(Upload failed: ${error?.message});
-  }
-};
+// Khởi tạo Storage và Firestore
+export const storage = getStorage(app);
+export const db = getFirestore(app);

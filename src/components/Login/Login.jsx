@@ -7,8 +7,6 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/apiConfig';
 const Login = () => {
   const navigate = useNavigate(); // Gọi useNavigate dưới dạng hàm
-
-
   const onFinish = async (values) => {
     try {
       const response = await api.post("/Authentication/Login", {
@@ -16,6 +14,7 @@ const Login = () => {
         password: values.password
       });
       const user = response.data;
+      console.log(user);
       if (response.status === 200) {
         message.success('Đăng nhập thành công');
         console.log('Login successful:', JSON.stringify(user));
