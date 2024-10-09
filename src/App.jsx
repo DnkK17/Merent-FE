@@ -8,8 +8,12 @@ import FooterPage from "./components/FixedPageComp/FooterPage";
 import MainPage from "./components/MainPage/MainPage";
 import About from "./components/AboutPage/About";
 import Rent from "./components/RentPage/Rent";
+import RentDetail from "./components/RentPage/RentDetail";
 import PhotoServices from "./components/RentPage/PhotoServices";
+import LightingRent from "./components/RentPage/Lighting/LightingRent";
+import LensRent from "./components/RentPage/Lens/LensRen";
 import Cart from "./components/CartPage/Cart"; // Import Cart component
+import Terms from "./components/TermsPage/Terms";
 import { useState,useEffect } from "react";
 
 function App() {
@@ -29,8 +33,12 @@ function App() {
         <Route path="/" element={<MainPage />}>
           <Route index element={<HomePage />} />
           <Route path="/About" element={<About />} />
-          <Route path="/Rent/Cameras" element={<Rent cartItems={cartItems} setCartItems={setCartItems} />} />
+          <Route path="/Rent/Cameras" element={<Rent />} />
+          <Route path="/Rent/Camera/:name" element={<RentDetail cartItems={cartItems} setCartItems={setCartItems} />} />
+          <Route path="/Rent/Lighting" element={< LightingRent/>} />
+          <Route path="/Rent/Lens" element={< LensRent/>} />
           <Route path="/Services/Studio" element={<PhotoServices />} />
+          <Route path="/TermsOfUse" element={< Terms/>} />
           <Route path="/Cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
         </Route>
       </Routes>

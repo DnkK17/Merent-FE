@@ -39,7 +39,7 @@ function Cart({ cartItems, setCartItems }) {
           }}
         >
           <List.Item.Meta
-            avatar={<img alt={item.name} src={item.imgSrc} style={{ width: '300px' }} />}
+            avatar={<img alt={item.name} src={item.urlCenter} style={{ width: '300px' }} />}
             title={
               <div style={{ textAlign: 'center', width: '100%' }}>
                 <h2 style={{ paddingTop:'50px' ,height: '50px'}}>{item.name}</h2>
@@ -52,7 +52,7 @@ function Cart({ cartItems, setCartItems }) {
             }
           />
           <Text strong style={{ color: 'red', fontSize: '1.2rem' }}>
-            {(item.price * item.quantity).toFixed(2)} VNĐ
+            {(item.price * item.quantity)} VNĐ
           </Text>
         </List.Item>
         

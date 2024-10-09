@@ -39,7 +39,6 @@ function HeaderPage() {
       children: [
         { label: 'Máy ảnh', key: 'Rent/Cameras' },
         { label: 'Ống kính', key: 'Rent/Lens' },
-        { label: 'Gimbal', key: 'Rent/Gimbal' },
         { label: 'Ánh sáng', key: 'Rent/Lighting' },
       ],
     },
@@ -52,13 +51,13 @@ function HeaderPage() {
         { label: 'Live stream', key: 'Services/Live-stream' },
       ],
       },
-    { label: 'ĐIỀU KHOẢN', key: 'Pricing' },
+    { label: 'ĐIỀU KHOẢN', key: 'TermsOfUse' },
     { label: 'WORKSHOP', key: 'Workshop' },
     { label: 'COMBO', key: 'Combo' },
     { label: 'GIỎ HÀNG', key: 'Cart' },
     name
     ? {
-        label: `Hi, ${name}`,
+        label: `Hi, Khoi`,
         key: 'Profile',
         children: [
           { label: 'Thông tin cá nhân', key: 'Profile' },
