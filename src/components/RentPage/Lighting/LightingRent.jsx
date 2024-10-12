@@ -2,7 +2,7 @@ import React from 'react';
 import { Layout, Row, Col, Card } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import EightCorner from "../../HomePage/images/EightCorner.jpg"
-import ThreeKMonoLight from "../../HomePage/images/ThreeKMonoLight.png"
+import ThreeKMonoLight from '../../HomePage/images/ThreeKMonoLight.png';
 import FiveKMonoLight from "../../HomePage/images/FiveKMonoLight.png"
 import SoftBox from "../../HomePage/images/SoftBox.jpg"
 import Wistro from "../../HomePage/images/Wistro.jpeg"
