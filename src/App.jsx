@@ -14,17 +14,21 @@ import LightingRent from "./components/RentPage/Lighting/LightingRent";
 import LensRent from "./components/RentPage/Lens/LensRen";
 import Cart from "./components/CartPage/Cart"; // Import Cart component
 import Terms from "./components/TermsPage/Terms";
+import Checkout from "./components/CartPage/Checkout";
 import { useState,useEffect } from "react";
 
 function App() {
   const user = localStorage.getItem('name');
-  const [cartItems, setCartItems] = useState([]);
-  useEffect(() => {
-    const savedCartItems = localStorage.getItem('cartItems');
-    if (savedCartItems) {
-      setCartItems(JSON.parse(savedCartItems));
-    }
-  }, []);
+ // Initialize cartItems with localStorage data or an empty array
+ const [cartItems, setCartItems] = useState(() => {
+  const savedCartItems = localStorage.getItem('cartItems');
+  return savedCartItems ? JSON.parse(savedCartItems) : [];
+});
+
+// Whenever cartItems changes, update localStorage
+useEffect(() => {
+  localStorage.setItem('cartItems', JSON.stringify(cartItems));
+}, [cartItems]);
   return (
     <BrowserRouter>
       <Routes>
@@ -40,6 +44,7 @@ function App() {
           <Route path="/Services/Studio" element={<PhotoServices />} />
           <Route path="/TermsOfUse" element={< Terms/>} />
           <Route path="/Cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
+          <Route path="/Cart/Checkout" element={<Checkout />} />
         </Route>
       </Routes>
     </BrowserRouter>

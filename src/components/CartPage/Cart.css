@@ -18,6 +18,41 @@
     display: flex;
     align-items: center;
   }
-  .cart-title{
-    padding-bottom: 60px;
+ 
+  .cart-container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .cart-title {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    margin-top: -70px;
+  }
+  
+  .summary-container {
+    background-color: #f9f9f9;
+  }
+  
+  .cart-policies ul {
+    list-style-type: disc;
+    padding-left: 20px;
+  }
+  .cart-policies li{
+    color: black;
+    text-align: start;
+  }
+  .cart-policies{
+    width: 50%;
+    margin: 0 auto;
+  }
+  .items-information{
+    text-align: start;
+    margin-top: -80px;
+    margin-left: 20px;
+  }
+  .items-totalprice{
+    padding-top: 80px;
   }

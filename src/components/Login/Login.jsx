@@ -1,11 +1,13 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { Button, Checkbox, Form, Input, message } from 'antd';
 import axios from 'axios'; 
 import '../Login/Login.css';
 import loginPic from "../HomePage/images/loginPic.png";
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/apiConfig';
+import { jwtDecode } from 'jwt-decode' 
 const Login = () => {
+  const [decoded,setDecoded] = useState();
   const navigate = useNavigate(); // Gọi useNavigate dưới dạng hàm
   const onFinish = async (values) => {
     try {
@@ -15,11 +17,13 @@ const Login = () => {
       });
       const user = response.data;
       console.log(user);
+      console.log(user.token);
       if (response.status === 200) {
         message.success('Đăng nhập thành công');
-        console.log('Login successful:', JSON.stringify(user));
+        const decodedToken = (jwtDecode(user.token));
+        localStorage.setItem('Email',decodedToken.Email);
         localStorage.setItem('name',user.name);
-        localStorage.setItem('token',user);
+        localStorage.setItem('token',user.token);
         navigate("/");
       }
     } catch (error) {
@@ -27,7 +31,10 @@ const Login = () => {
       message.error('Đăng nhập thất bại, vui lòng kiểm tra lại thông tin');
     }
   };
+  console.log(localStorage.getItem('Email'));
+  console.log(localStorage.getItem('Id'));
 
+  
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };

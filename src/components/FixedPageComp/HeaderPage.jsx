@@ -5,17 +5,30 @@ import { useNavigate } from 'react-router-dom';
 import logoPage from "../HomePage/images/logoPage.png";
 
 const { Header } = Layout;
-console.log(localStorage.getItem('name'));
+
 function HeaderPage() {
   const navigate = useNavigate();
-
   const [name, setName] = useState('');
 
   useEffect(() => {
-
-    const storedUsername = localStorage.getItem('name');
-    if (storedUsername) {
-      setName(storedUsername);
+    const userID = localStorage.getItem('Id');
+    if (userID) {
+      fetch(`https://merent.uydev.id.vn/api/User/id?id=${userID}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            setName(data.data.name);
+            localStorage.setItem('name', data.data.name);
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching user data:", error);
+        });
+    } else {
+      const storedUsername = localStorage.getItem('name');
+      if (storedUsername) {
+        setName(storedUsername);
+      }
     }
   }, []); 
 
@@ -24,9 +37,7 @@ function HeaderPage() {
       localStorage.removeItem('name');
       setName('');
       navigate('/');
-
     } else {
-      // Navigate to other routes
       navigate(`/${e.key}`);
     }
   };
@@ -43,28 +54,28 @@ function HeaderPage() {
       ],
     },
     { label: 'DỊCH VỤ',
-       key: 'Services',
-       children: [
+      key: 'Services',
+      children: [
         { label: 'Cho thuê studio', key: 'Services/Studio' },
         { label: 'Chụp hình concept', key: 'Services/Concept' },
         { label: 'Quay vlog', key: 'Services/Vlog' },
         { label: 'Live stream', key: 'Services/Live-stream' },
       ],
-      },
+    },
     { label: 'ĐIỀU KHOẢN', key: 'TermsOfUse' },
     { label: 'WORKSHOP', key: 'Workshop' },
     { label: 'COMBO', key: 'Combo' },
     { label: 'GIỎ HÀNG', key: 'Cart' },
     name
-    ? {
-        label: `Hi, Khoi`,
-        key: 'Profile',
-        children: [
-          { label: 'Thông tin cá nhân', key: 'Profile' },
-          { label: 'Đăng xuất', key: 'Logout' },
-        ],
-      }
-    : { label: 'ĐĂNG NHẬP', key: 'Login' }
+      ? {
+          label: `Hi, ${name}`,
+          key: 'Profile',
+          children: [
+            { label: 'Thông tin cá nhân', key: 'Profile' },
+            { label: 'Đăng xuất', key: 'Logout' },
+          ],
+        }
+      : { label: 'ĐĂNG NHẬP', key: 'Login' }
   ];
 
   return (
