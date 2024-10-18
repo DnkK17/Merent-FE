@@ -1,24 +1,36 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';  // Import useLocation để lấy state
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Form, Input, Button, Typography, List, Row, Col } from 'antd';
+import Swal from 'sweetalert2';
 import './Checkout.css';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 
 function Checkout() {
-  const { state } = useLocation();  // Lấy state từ useLocation
-  const cartItems = state?.cartItems || [];  // Nhận cartItems từ state
+  const { state } = useLocation();
+  const [cartItems, setCartItems] = useState(state?.cartItems || []);  // Quản lý state của cartItems
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+
   const onFinish = (values) => {
+    // Hiển thị SweetAlert khi hoàn thành form
+    Swal.fire({
+      icon: 'success',
+      title: 'Cảm ơn bạn đã mua hàng',
+      text: 'Chúng tôi sẽ kiểm tra và tiến hành giao hàng trong vòng 24h',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      // Xóa tất cả item trong cart sau khi người dùng đóng SweetAlert
+      setCartItems([]);
+    });
+    
     console.log('Form values: ', values);
   };
 
   return (
     <div className="checkout-container">
-      <Title style = {{marginBottom:'50px'}} level={3}>Thông tin mua hàng</Title>
+      <Title style={{ marginBottom: '50px' }} level={3}>Thông tin mua hàng</Title>
 
-      {/* Hiển thị danh sách sản phẩm bên trái */}
       <Row gutter={24}>
         <Col span={12}>
           <List
@@ -43,7 +55,7 @@ function Checkout() {
               </List.Item>
             )}
           />
-           <div className="summary-container" style={{ border: '1px solid #d9d9d9', borderRadius: '8px',paddingBottom:'30px',marginTop:'40px',paddingLeft:'20px',paddingRight:'20px' }}>
+          <div className="summary-container" style={{ border: '1px solid #d9d9d9', borderRadius: '8px', paddingBottom: '30px', marginTop: '40px', paddingLeft: '20px', paddingRight: '20px' }}>
             <Title level={4}>Thông tin đơn hàng</Title>
             <div className="summary">
               <Row justify="space-between">
@@ -54,13 +66,14 @@ function Checkout() {
                 <Text>Phí vận chuyển:</Text>
                 <Text type="secondary">Sẽ được tính ở trang thanh toán</Text>
               </Row>
-              
             </div>
+            <img
+              style={{ width: '50%', marginTop: '40px' }}
+              src='https://firebasestorage.googleapis.com/v0/b/merent-242d6.appspot.com/o/Screenshot%202024-10-15%20211210.png?alt=media&token=dd24b426-07a1-4fad-a354-ace03359b4c5' alt='qr-code' />
           </div>
-        
+
         </Col>
 
-        {/* Form thông tin mua hàng */}
         <Col span={12}>
           <Form
             layout="vertical"
@@ -94,6 +107,7 @@ function Checkout() {
             <Button type="primary" htmlType="submit" className="checkout-button">
               Thanh Toán
             </Button>
+
           </Form>
         </Col>
       </Row>

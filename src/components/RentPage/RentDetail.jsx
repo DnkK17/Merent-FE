@@ -42,7 +42,7 @@ function RentDetail({ cartItems, setCartItems }) {
     return <div>Error: {error.message}</div>;
   }
   const handleProductClick = (product) => {
-    navigate(`/Rent/Camera/${product.name}`, { state: { product } }); // Passing product as state
+    navigate(`/Rent/Items/${product.name}`, { state: { product } }); // Passing product as state
   };
   // Retrieve the passed product from the state
   const selectedProduct = location.state?.product;

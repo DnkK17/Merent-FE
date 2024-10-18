@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { List, Button, Typography, Row, Col } from 'antd';
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -9,10 +9,27 @@ const { Title, Text } = Typography;
 
 function Cart({ cartItems, setCartItems }) {
   const navigate = useNavigate();  // Initialize useNavigate
+
+  // Khi component tải, lấy giỏ hàng từ localStorage nếu có
+  useEffect(() => {
+    const savedCartItems = localStorage.getItem('cartItems');
+    if (savedCartItems) {
+      setCartItems(JSON.parse(savedCartItems));
+    }
+  }, [setCartItems]);
+
+  // Lưu giỏ hàng vào localStorage mỗi khi cartItems thay đổi
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    }
+  }, [cartItems]);
+
   const handleRemoveItem = (id) => {
     const updatedCart = cartItems.filter(item => item.id !== id);
     setCartItems(updatedCart);
   };
+
   const handleIncreaseQuantity = (id) => {
     const updatedCart = cartItems.map(item =>
       item.id === id ? { ...item, quantity: item.quantity + 1 } : item
@@ -27,7 +44,6 @@ function Cart({ cartItems, setCartItems }) {
     setCartItems(updatedCart);
   };
 
-  // Hàm xử lý khi nhấn nút "Thanh Toán"
   const handleCheckout = () => {
     navigate('/Cart/Checkout', { state: { cartItems } });  // Truyền cartItems qua state
   };
@@ -51,7 +67,7 @@ function Cart({ cartItems, setCartItems }) {
                   marginLeft: '17%',
                   marginBottom: '80px',
                   borderRadius: '8px',
-                  width:'85%'
+                  width: '85%'
                 }}
               >
                 <Row align="middle">
@@ -80,15 +96,13 @@ function Cart({ cartItems, setCartItems }) {
                         style={{ marginLeft: '8px', backgroundColor: '#082C44', color: 'white' }}
                       />
                       <Button
-                    type="link"
-                    icon={<DeleteOutlined />}
-                    onClick={() => handleRemoveItem(item.id)}
-                    style={{marginLeft:'60px'}}
-                  />
+                        type="link"
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleRemoveItem(item.id)}
+                        style={{ marginLeft: '60px' }}
+                      />
                     </Row>
                   </Col>
-                  
-
                 </Row>
               </List.Item>
             )}
@@ -96,14 +110,16 @@ function Cart({ cartItems, setCartItems }) {
         </Col>
       </Row>
 
-      <Button 
-        className="summary-container-button"
-        style={{ width: '20%', backgroundColor: '#BF1414' }} 
-        type="primary"
-        onClick={handleCheckout}  // Bắt sự kiện nhấn nút
-      >
-        Đi đến trang thanh toán
-      </Button>
+      {cartItems.length > 0 && (
+        <Button
+          className="summary-container-button"
+          style={{ width: '20%', backgroundColor: '#BF1414' }}
+          type="primary"
+          onClick={handleCheckout}  // Bắt sự kiện nhấn nút
+        >
+          Đi đến trang thanh toán
+        </Button>
+      )}
     </div>
   );
 }

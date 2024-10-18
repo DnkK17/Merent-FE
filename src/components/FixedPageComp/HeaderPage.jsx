@@ -35,6 +35,8 @@ function HeaderPage() {
   const handleMenuClick = (e) => {
     if (e.key === 'Logout') {
       localStorage.removeItem('name');
+      localStorage.removeItem('token');
+      localStorage.removeItem('cartItems');
       setName('');
       navigate('/');
     } else {
@@ -56,19 +58,18 @@ function HeaderPage() {
     { label: 'DỊCH VỤ',
       key: 'Services',
       children: [
-        { label: 'Cho thuê studio', key: 'Services/Studio' },
-        { label: 'Chụp hình concept', key: 'Services/Concept' },
-        { label: 'Quay vlog', key: 'Services/Vlog' },
-        { label: 'Live stream', key: 'Services/Live-stream' },
+        { label: 'Cho thuê studio', key: 'Services/Studio' }
+        // { label: 'Chụp hình concept', key: 'Services/Concept' },
+        // { label: 'Quay vlog', key: 'Services/Vlog' },
+        // { label: 'Live stream', key: 'Services/Live-stream' },
       ],
     },
     { label: 'ĐIỀU KHOẢN', key: 'TermsOfUse' },
     { label: 'WORKSHOP', key: 'Workshop' },
     { label: 'COMBO', key: 'Combo' },
     { label: 'GIỎ HÀNG', key: 'Cart' },
-    name
-      ? {
-          label: `Hi, ${name}`,
+     localStorage.getItem('token')?{
+          label: `Hi, Khoi`,
           key: 'Profile',
           children: [
             { label: 'Thông tin cá nhân', key: 'Profile' },

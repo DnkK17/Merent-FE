@@ -29,7 +29,7 @@ function Rent() {
     return <div>Error: {error.message}</div>;
   }
   const handleProductClick = (product) => {
-    navigate(`/Rent/Camera/${product.name}`, { state: { product } }); // Passing product as state
+    navigate(`/Rent/Items/${product.name}`, { state: { product } }); // Passing product as state
   };
   return (
     <Layout className="layout">
@@ -37,7 +37,8 @@ function Rent() {
         <div className='related-products-section'>
           <h2 className="section-title">MÁY ẢNH / MÁY QUAY PHIM</h2>
           <Row gutter={[16, 50]} justify="center">
-            {products.map(product => (
+            {products.filter(product => product.productType === 'camera') 
+              .map(product => (
               <Col key={product.id} xs={24} sm={24} md={12} lg={6}>
                 <Card
                   className="custom-cardz"

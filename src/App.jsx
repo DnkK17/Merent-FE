@@ -15,6 +15,8 @@ import LensRent from "./components/RentPage/Lens/LensRen";
 import Cart from "./components/CartPage/Cart"; // Import Cart component
 import Terms from "./components/TermsPage/Terms";
 import Checkout from "./components/CartPage/Checkout";
+import Workshop from "./components/Workshop/Workshop";
+import Combo from "./components/Combo/Combo";
 import { useState,useEffect } from "react";
 
 function App() {
@@ -38,13 +40,15 @@ useEffect(() => {
           <Route index element={<HomePage />} />
           <Route path="/About" element={<About />} />
           <Route path="/Rent/Cameras" element={<Rent />} />
-          <Route path="/Rent/Camera/:name" element={<RentDetail cartItems={cartItems} setCartItems={setCartItems} />} />
+          <Route path="/Rent/Items/:name" element={<RentDetail cartItems={cartItems} setCartItems={setCartItems} />} />
           <Route path="/Rent/Lighting" element={< LightingRent/>} />
           <Route path="/Rent/Lens" element={< LensRent/>} />
           <Route path="/Services/Studio" element={<PhotoServices />} />
           <Route path="/TermsOfUse" element={< Terms/>} />
+          <Route path="/Workshop" element={<Workshop/>}/>
+          <Route path="/Combo" element={<Combo/>}/>
           <Route path="/Cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
-          <Route path="/Cart/Checkout" element={<Checkout />} />
+          <Route path="/Cart/Checkout" element={<Checkout cartItems={cartItems} setCartItems={setCartItems}/>} />
         </Route>
       </Routes>
     </BrowserRouter>
