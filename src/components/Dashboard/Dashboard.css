@@ -1,0 +1,35 @@
+.app-container {
+    padding: 20px;
+  }
+  
+  .dashboard-container, .customers-container {
+    margin-bottom: 40px;
+  }
+  
+  .stat {
+    display: inline-block;
+    margin-right: 30px;
+  }
+  
+  .sales-chart, .traffic-source {
+    margin-top: 20px;
+  }
+  
+  .add-customer-form input {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  table, th, td {
+    border: 1px solid black;
+  }
+  
+  button {
+    margin-right: 5px;
+  }
+  
