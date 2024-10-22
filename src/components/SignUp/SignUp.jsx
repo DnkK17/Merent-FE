@@ -96,15 +96,6 @@ const SignUp = () => (
         </Button>
       </Form.Item>
     </Form>
-    {/* <div className="social-login">
-      <p>Or</p>
-      <Button icon={<GoogleIcon />} block>
-        Sign in with Google
-      </Button>
-      <Button icon={<AppleIcon />} block>
-        Sign in with Apple
-      </Button>
-    </div> */}
     <div className="login-link">
       <p>Có một tài khoản? <a href="/login">Đăng nhập</a></p>
     </div>
