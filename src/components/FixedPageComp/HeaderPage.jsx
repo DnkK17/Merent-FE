@@ -8,36 +8,17 @@ const { Header } = Layout;
 
 function HeaderPage() {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
+  const storedName = localStorage.getItem('name');
+  console.log(storedName); // Sẽ hiển thị tên của người dùng
+  
 
-  useEffect(() => {
-    const userID = localStorage.getItem('Id');
-    if (userID) {
-      fetch(`https://merent.uydev.id.vn/api/User/id?id=${userID}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            setName(data.data.name);
-            localStorage.setItem('name', data.data.name);
-          }
-        })
-        .catch(error => {
-          console.error("Error fetching user data:", error);
-        });
-    } else {
-      const storedUsername = localStorage.getItem('name');
-      if (storedUsername) {
-        setName(storedUsername);
-      }
-    }
-  }, []); 
+ 
 
   const handleMenuClick = (e) => {
     if (e.key === 'Logout') {
       localStorage.removeItem('name');
       localStorage.removeItem('token');
       localStorage.removeItem('cartItems');
-      setName('');
       navigate('/');
     } else {
       navigate(`/${e.key}`);
@@ -68,11 +49,11 @@ function HeaderPage() {
     { label: 'WORKSHOP', key: 'Workshop' },
     { label: 'COMBO', key: 'Combo' },
     { label: 'GIỎ HÀNG', key: 'Cart' },
-     localStorage.getItem('token')?{
-          label: `Hi, Khoi`,
+     localStorage.getItem('name')?{
+          label: `Hi, ${storedName}`,
           key: 'Profile',
           children: [
-            { label: 'Thông tin cá nhân', key: 'Profile' },
+           
             { label: 'Đăng xuất', key: 'Logout' },
           ],
         }

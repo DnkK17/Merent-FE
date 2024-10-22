@@ -1,14 +1,29 @@
-import React,{useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Checkbox, Form, Input, message } from 'antd';
 import axios from 'axios'; 
 import '../Login/Login.css';
 import loginPic from "../HomePage/images/loginPic.png";
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/apiConfig';
-import { jwtDecode } from 'jwt-decode' 
+import {jwtDecode} from 'jwt-decode'; // Sửa import jwt-decode
+
 const Login = () => {
-  const [decoded,setDecoded] = useState();
+  const [decoded, setDecoded] = useState();
   const navigate = useNavigate(); // Gọi useNavigate dưới dạng hàm
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      // Điều hướng tới trang Admin hoặc trang chính
+      if (decodedToken.Email === 'khoidnse172013@fpt.edu.vn') {
+        navigate("/Admin/Dashboard");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [navigate]);
+
   const onFinish = async (values) => {
     try {
       const response = await api.post("/Authentication/Login", {
@@ -20,21 +35,50 @@ const Login = () => {
       console.log(user.token);
       if (response.status === 200) {
         message.success('Đăng nhập thành công');
-        const decodedToken = (jwtDecode(user.token));
-        localStorage.setItem('Email',decodedToken.Email);
-        localStorage.setItem('name',user.name);
-        localStorage.setItem('token',user.token);
-        navigate("/");
+        const decodedToken = jwtDecode(user.token);
+        // Gọi API /api/User/me để lấy thêm thông tin user
+        await fetchUserInfo(user.token);
+
+        // Điều hướng
+        if (decodedToken.Email === 'khoidnse172013@fpt.edu.vn') {
+          navigate("/Admin/Dashboard");
+        } else {
+          navigate("/");
+        }
       }
     } catch (error) {
       console.error('Login failed:', error);
       message.error('Đăng nhập thất bại, vui lòng kiểm tra lại thông tin');
     }
   };
-  console.log(localStorage.getItem('Email'));
-  console.log(localStorage.getItem('Id'));
 
-  
+  const fetchUserInfo = async (token) => {
+    try {
+      const response = await api.get("/User/me", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Gửi token trong header
+        },
+      });
+      
+      const userInfo = response.data; // response.data chứa toàn bộ thông tin người dùng
+      console.log('User Info:', userInfo);
+      
+      // Lấy và lưu name từ response.data
+      const userName = userInfo.data.name; // Lấy trường name từ bên trong data
+      const email = userInfo.data.email;
+      const phone = userInfo.data.phoneNumber;
+      console.log(userName);
+      
+      // Lưu thông tin người dùng vào localStorage
+      localStorage.setItem('userInfo', JSON.stringify(userInfo.data)); // Lưu toàn bộ data vào localStorage
+      localStorage.setItem('name', userName); // Lưu name riêng vào localStorage
+      localStorage.setItem('phoneNumer',phone);
+      localStorage.setItem('email',email);q
+    } catch (error) {
+      console.error('Failed to fetch user info:', error);
+    }
+  };
+
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
   };

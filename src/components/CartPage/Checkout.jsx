@@ -14,6 +14,8 @@ function Checkout() {
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   const [isCreatingLink, setIsCreatingLink] = useState(false);
   const [isContainerRendered, setIsContainerRendered] = useState(false); 
+  const [form] = Form.useForm(); // Tạo form instance
+
   const [payOSConfig, setPayOSConfig] = useState({
     RETURN_URL: window.location.origin,
     ELEMENT_ID: "embedded-payment-container",
@@ -27,20 +29,60 @@ function Checkout() {
 
   const { open, exit } = usePayOS(payOSConfig);
 
+  // Hàm kiểm tra đăng nhập
+  const checkLogin = () => {
+    // Thay đổi logic kiểm tra đăng nhập theo nhu cầu của bạn
+    const isLoggedIn = false; // Giả sử người dùng chưa đăng nhập
+    return isLoggedIn;
+  };
+
+  // Hàm tạo liên kết thanh toán từ PayOS
   const handleGetPaymentLink = async () => {
+    if (!checkLogin()) {
+      Swal.fire({
+        title: 'Bạn chưa đăng nhập!',
+        text: 'Vui lòng đăng nhập để tiếp tục thanh toán.',
+        icon: 'warning',
+        confirmButtonText: 'Đăng nhập',
+        cancelButtonText: 'Hủy',
+        showCancelButton: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '/login'; // Thay đổi đường dẫn đến trang đăng nhập
+        }
+      });
+      return;
+    }
+
     setIsCreatingLink(true);
     exit(); 
-    const response = await fetch("https://merent.uydev.id.vn/api/Wallet/create-payment-link-payos", {
-      method: "POST",
-      body: JSON.stringify({ totalAmount, cartItems }), 
-      headers: { 'Content-Type': 'application/json' }
-    });
-    const result = await response.json();
-    setPayOSConfig((oldConfig) => ({
-      ...oldConfig,
-      CHECKOUT_URL: result.checkoutUrl,
-    }));
-    setIsContainerRendered(true); 
+
+    try {
+      const response = await fetch("https://merent.uydev.id.vn/api/Wallet/create-payment-link-payos", {
+        method: "POST",
+        body: JSON.stringify({ amount: totalAmount }), 
+        headers: {
+          'Content-Type': 'application/json',
+          'API-Key': 'fdf89317-7b69-430e-b4ed-737fe70131a6',
+          'Client-ID': 'd5558b7b-f06c-4b63-b47f-732307c1eaa6'
+        }
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setPayOSConfig((oldConfig) => ({
+          ...oldConfig,
+          CHECKOUT_URL: result.data.paymentLinkId,  
+        }));
+        setIsContainerRendered(true);  
+      } else {
+        Swal.fire('Lỗi', 'Không thể tạo liên kết thanh toán', 'error');
+      }
+    } catch (error) {
+      Swal.fire('Lỗi', 'Đã có lỗi xảy ra khi kết nối với PayOS', 'error');
+    }
+
     setIsCreatingLink(false);
   };
 
@@ -48,7 +90,17 @@ function Checkout() {
     if (isContainerRendered && payOSConfig.CHECKOUT_URL) {
       open(); 
     }
-  }, [payOSConfig, isContainerRendered]); 
+  }, [payOSConfig, isContainerRendered, open]);
+
+  // Gọi khi component được mount để thiết lập giá trị email và số điện thoại
+  useEffect(() => {
+    const storedEmail = localStorage.getItem('email') || ''; // Lấy email từ localStorage
+    const storedPhone = localStorage.getItem('phoneNumber') || ''; // Lấy số điện thoại từ localStorage
+    form.setFieldsValue({
+      email: storedEmail,
+      phoneNumber: storedPhone,
+    });
+  }, [form]);
 
   const onFinish = (values) => {
     handleGetPaymentLink(); 
@@ -91,7 +143,7 @@ function Checkout() {
         </Col>
 
         <Col span={12}>
-          <Form layout="vertical" onFinish={onFinish} className="checkout-form">
+          <Form layout="vertical" form={form} onFinish={onFinish} className="checkout-form">
             <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Vui lòng nhập email' }]}>
               <Input />
             </Form.Item>
@@ -113,7 +165,6 @@ function Checkout() {
           </Form>
         </Col>
       </Row>
-
 
       {isContainerRendered && (
         <div id="embedded-payment-container" style={{ height: '350px', marginTop: '20px' }}></div>

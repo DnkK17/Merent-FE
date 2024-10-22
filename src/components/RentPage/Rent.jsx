@@ -37,7 +37,7 @@ function Rent() {
         <div className='related-products-section'>
           <h2 className="section-title">MÁY ẢNH / MÁY QUAY PHIM</h2>
           <Row gutter={[16, 50]} justify="center">
-            {products.filter(product => product.productType === 'camera') 
+            {products.filter(product => product.productType === 'Camera') 
               .map(product => (
               <Col key={product.id} xs={24} sm={24} md={12} lg={6}>
                 <Card

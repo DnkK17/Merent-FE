@@ -17,6 +17,10 @@ import Terms from "./components/TermsPage/Terms";
 import Checkout from "./components/CartPage/Checkout";
 import Workshop from "./components/Workshop/Workshop";
 import Combo from "./components/Combo/Combo";
+import Dashboard from "./components/Dashboard/Dashboard";
+import CustomerDash from "./components/Dashboard/CustomerDash";
+import AdminLayout from "./components/Dashboard/AdminLayout";
+import ProductDash from "./components/Dashboard/ProductDash";
 import { useState,useEffect } from "react";
 
 function App() {
@@ -36,6 +40,11 @@ useEffect(() => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/Register" element={<SignUp />} />
+        <Route path="/Admin" element={<AdminLayout />}>
+          <Route path="Dashboard" element={<Dashboard />} />
+          <Route path="Dashboard/Customers" element={<CustomerDash />} />
+          <Route path="Dashboard/Products" element={<ProductDash />} />
+        </Route>
         <Route path="/" element={<MainPage />}>
           <Route index element={<HomePage />} />
           <Route path="/About" element={<About />} />
@@ -49,8 +58,10 @@ useEffect(() => {
           <Route path="/Combo" element={<Combo/>}/>
           <Route path="/Cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
           <Route path="/Cart/Checkout" element={<Checkout cartItems={cartItems} setCartItems={setCartItems}/>} />
+          
         </Route>
       </Routes>
+      
     </BrowserRouter>
   );
 }

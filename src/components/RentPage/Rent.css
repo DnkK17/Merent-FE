@@ -70,18 +70,19 @@
   }
   .product-image-large {
     width: 100%;
-    max-width: 500px;
+    max-width: 420px;
     height: auto;
   }
   
   .product-image-small {
     width: 100%;
-    max-width: 135px;
+
     height: auto;
   }
 
   .small-images-row {
     width: 102%;
+
 
   }
 
@@ -114,4 +115,16 @@
 .camera-description{
   margin-top: 30%;
   padding-left: 40px;
+}
+.custom-tooltip .ant-tooltip-inner {
+  padding: 0; /* Loại bỏ padding mặc định của Tooltip */
+}
+
+.zoom-image {
+  width: 280px; /* Điều chỉnh kích thước ảnh phóng to */
+  height: auto;
+}
+
+.product-image-small {
+  cursor: pointer;
 }
