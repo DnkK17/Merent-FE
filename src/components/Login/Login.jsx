@@ -82,7 +82,7 @@ const Login = () => {
         </Form>
 
         <div className="login-link">
-          <p>Bạn chưa có tài khoản? <a href="/register">Đăng ký</a></p>
+          <p>Bạn chưa có tài khoản? <a href="/Register">Đăng ký</a></p>
         </div>
       </div>
       <div className="form-pic">
