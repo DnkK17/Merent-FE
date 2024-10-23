@@ -14,8 +14,6 @@ function Checkout() {
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   const [isCreatingLink, setIsCreatingLink] = useState(false);
   const [isContainerRendered, setIsContainerRendered] = useState(false); 
-  const [form] = Form.useForm(); // Tạo form instance
-
   const [payOSConfig, setPayOSConfig] = useState({
     RETURN_URL: window.location.origin,
     ELEMENT_ID: "embedded-payment-container",
@@ -32,7 +30,8 @@ function Checkout() {
   // Hàm kiểm tra đăng nhập
   const checkLogin = () => {
     // Thay đổi logic kiểm tra đăng nhập theo nhu cầu của bạn
-    const isLoggedIn = false; // Giả sử người dùng chưa đăng nhập
+    var isLoggedIn = false;
+    if(localStorage.getItem('name')) isLoggedIn = true; // Giả sử người dùng chưa đăng nhập
     return isLoggedIn;
   };
 
@@ -48,6 +47,7 @@ function Checkout() {
         showCancelButton: true,
       }).then((result) => {
         if (result.isConfirmed) {
+          // Chuyển hướng đến trang đăng nhập
           window.location.href = '/login'; // Thay đổi đường dẫn đến trang đăng nhập
         }
       });
@@ -90,17 +90,7 @@ function Checkout() {
     if (isContainerRendered && payOSConfig.CHECKOUT_URL) {
       open(); 
     }
-  }, [payOSConfig, isContainerRendered, open]);
-
-  // Gọi khi component được mount để thiết lập giá trị email và số điện thoại
-  useEffect(() => {
-    const storedEmail = localStorage.getItem('email') || ''; // Lấy email từ localStorage
-    const storedPhone = localStorage.getItem('phoneNumber') || ''; // Lấy số điện thoại từ localStorage
-    form.setFieldsValue({
-      email: storedEmail,
-      phoneNumber: storedPhone,
-    });
-  }, [form]);
+  }, [payOSConfig, isContainerRendered, open]); 
 
   const onFinish = (values) => {
     handleGetPaymentLink(); 
@@ -143,7 +133,7 @@ function Checkout() {
         </Col>
 
         <Col span={12}>
-          <Form layout="vertical" form={form} onFinish={onFinish} className="checkout-form">
+          <Form layout="vertical" onFinish={onFinish} className="checkout-form">
             <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Vui lòng nhập email' }]}>
               <Input />
             </Form.Item>
