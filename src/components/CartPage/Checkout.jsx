@@ -57,7 +57,6 @@ function Checkout() {
     setIsCreatingLink(true);
     exit(); 
 
-    try {
       const response = await fetch("https://merent.uydev.id.vn/api/Wallet/create-payment-link-payos", {
         method: "POST",
         body: JSON.stringify({ amount: totalAmount }), 
@@ -69,22 +68,21 @@ function Checkout() {
       });
 
       const result = await response.json();
+    setPayOSConfig((oldConfig) => ({
+      ...oldConfig,
+      CHECKOUT_URL: result.checkoutUrl,
+    }));
 
-      if (result.success) {
-        setPayOSConfig((oldConfig) => ({
-          ...oldConfig,
-          CHECKOUT_URL: result.data.paymentLinkId,  
-        }));
-        setIsContainerRendered(true);  
-      } else {
-        Swal.fire('Lỗi', 'Không thể tạo liên kết thanh toán', 'error');
-      }
-    } catch (error) {
-      Swal.fire('Lỗi', 'Đã có lỗi xảy ra khi kết nối với PayOS', 'error');
-    }
-
+    setIsOpen(true);
     setIsCreatingLink(false);
   };
+
+  useEffect(() => {
+    if (payOSConfig.CHECKOUT_URL != null) {
+      open();
+    }
+  }, [payOSConfig]);
+     
 
   useEffect(() => {
     if (isContainerRendered && payOSConfig.CHECKOUT_URL) {
