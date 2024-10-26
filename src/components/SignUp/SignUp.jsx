@@ -1,34 +1,37 @@
+import { Button, Checkbox, Form, Input, message } from 'antd';
 import React from 'react';
-import { Button, Checkbox, Form, Input,message } from 'antd';
-import '../SignUp/SignUp.css'
-import axios from 'axios';
-import loginPic from "../HomePage/images/loginPic.png";
 import { api } from '../../services/apiConfig';
+import loginPic from "../HomePage/images/loginPic.png";
+import '../SignUp/SignUp.css';
 
-const onFinish = async (values) => {
-  try {
-    const response = await api.post("/Authentication/Register", {
-      name: values.name,
-      email: values.email,
-      password: values.password,
-      phoneNumber: values.phoneNumber,
-      gender: values.gender
-    });
-    if (response.status === 200) {
-      message.success('Đăng ký thành công');
-      console.log('Register successful:', response.data);
-     
-       localStorage.setItem('token', response.data.token);
+
+const SignUp = () => {
+
+  const onFinish = async (values) => {
+    try {
+      const response = await api.post("/Authentication/Register", {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        phoneNumber: values.phoneNumber,
+        gender: values.gender
+      });
+      if (response.status === 200) {
+        message.success('Đăng ký thành công');
+        console.log('Register successful:', response.data);
+       
+         localStorage.setItem('token', response.data.token);
+      }
+    } catch (error) {
+      console.error('Register failed:', error);
+      message.error('Đăng ký thất bại, vui lòng kiểm tra lại thông tin');
     }
-  } catch (error) {
-    console.error('Register failed:', error);
-    message.error('Đăng ký thất bại, vui lòng kiểm tra lại thông tin');
-  }
-};
-const onFinishFailed = (errorInfo) => {
-  console.log('Failed:', errorInfo);
-};
-const SignUp = () => (
+  };
+  const onFinishFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo);
+  };
+
+  return (
     <div className='form-body'>
     <div className="form-container">
     <div className="form-title">
@@ -107,5 +110,6 @@ const SignUp = () => (
       />
     </div>
   </div>
-);
+)
+}
 export default SignUp;
