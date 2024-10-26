@@ -126,7 +126,9 @@ const Login = () => {
         </Form>
 
         <div className="login-link">
-          <p>Bạn chưa có tài khoản? <a href="/Register">Đăng ký</a></p>
+          <p>Bạn chưa có tài khoản? <span onClick={() => {
+            navigate('/Register');
+          }}>Đăng ký</span></p>
         </div>
       </div>
       <div className="form-pic">
