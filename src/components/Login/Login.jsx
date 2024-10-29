@@ -33,6 +33,7 @@ const Login = () => {
       const user = response.data;
       console.log(user);
       console.log(user.token);
+      localStorage.setItem('token', user.token);
       if (response.status === 200) {
         message.success('Đăng nhập thành công');
         const decodedToken = jwtDecode(user.token);

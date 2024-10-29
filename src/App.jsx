@@ -22,6 +22,8 @@ import CustomerDash from "./components/Dashboard/CustomerDash";
 import AdminLayout from "./components/Dashboard/AdminLayout";
 import ProductDash from "./components/Dashboard/ProductDash";
 import { useState,useEffect } from "react";
+import ProfilePage from "./components/Profile/ProfilePage";
+import PaymentPage from "./components/Payment/PaymentPage";
 
 function App() {
   const user = localStorage.getItem('name');
@@ -48,6 +50,7 @@ useEffect(() => {
         <Route path="/" element={<MainPage />}>
           <Route index element={<HomePage />} />
           <Route path="/About" element={<About />} />
+          <Route path="/payment" element={<PaymentPage />} />
           <Route path="/Rent/Cameras" element={<Rent />} />
           <Route path="/Rent/Items/:name" element={<RentDetail cartItems={cartItems} setCartItems={setCartItems} />} />
           <Route path="/Rent/Lighting" element={< LightingRent/>} />
@@ -56,6 +59,7 @@ useEffect(() => {
           <Route path="/TermsOfUse" element={< Terms/>} />
           <Route path="/Workshop" element={<Workshop/>}/>
           <Route path="/Combo" element={<Combo/>}/>
+          <Route path="/Profile" element={<ProfilePage/>}/>
           <Route path="/Cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
           <Route path="/Cart/Checkout" element={<Checkout cartItems={cartItems} setCartItems={setCartItems}/>} />
           

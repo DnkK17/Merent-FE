@@ -10,9 +10,6 @@ function HeaderPage() {
   const navigate = useNavigate();
   const storedName = localStorage.getItem('name');
   console.log(storedName); // Sẽ hiển thị tên của người dùng
-  
-
- 
 
   const handleMenuClick = (e) => {
     if (e.key === 'Logout') {
@@ -53,7 +50,7 @@ function HeaderPage() {
           label: `Hi, ${storedName}`,
           key: 'Profile',
           children: [
-           
+            { label: 'Thông tin cá nhân', key: 'Profile' },
             { label: 'Đăng xuất', key: 'Logout' },
           ],
         }
@@ -62,7 +59,7 @@ function HeaderPage() {
 
   return (
     <Layout className='layout'>
-      <a href='/' className='page-logo'>
+      <a href='/' className='page-logo flex items-center justify-center'>
         <img src={logoPage} alt="Logo" />
       </a>
       <div className='Menu'>

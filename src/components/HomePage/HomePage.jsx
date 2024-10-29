@@ -45,10 +45,10 @@ function HomePage() {
   return (
     <Layout className="layout">
       
-        <div className='home-canon'>
+        <div className='home-canon mx-auto'>
             <img src={newBackground2}></img>
         </div>
-        <div className='home-camera'>
+        <div className='home-camera mx-auto'>
             <img src={camerasBackground}></img>
         </div>
       {/* Main Content */}
