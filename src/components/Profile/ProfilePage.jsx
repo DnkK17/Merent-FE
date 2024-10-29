@@ -62,7 +62,7 @@ export default function ProfilePage() {
       setIsModalVisible(false);
       if (data.success) {
         message.success("Nạp tiền thành công");
-        window.location.href = data.data.payUrl;
+        window.location.href = data.data;
       } else {
         message.error(data.message || "Lỗi khi tạo liên kết nạp tiền");
       }
