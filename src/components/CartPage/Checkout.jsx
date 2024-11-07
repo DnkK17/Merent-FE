@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Form, Input, Button, Typography, List, Row, Col } from 'antd';
 import Swal from 'sweetalert2';
-import { usePayOS } from 'payos-checkout'; 
 import './Checkout.css';
 
 const { Title, Text } = Typography;
@@ -12,89 +11,92 @@ function Checkout() {
   const { state } = useLocation();
   const [cartItems, setCartItems] = useState(state?.cartItems || []);
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
-  const [isCreatingLink, setIsCreatingLink] = useState(false);
-  const [isContainerRendered, setIsContainerRendered] = useState(false); 
-  const [payOSConfig, setPayOSConfig] = useState({
-    RETURN_URL: window.location.origin,
-    ELEMENT_ID: "embedded-payment-container",
-    CHECKOUT_URL: null,
-    embedded: true,
-    onSuccess: () => {
-      Swal.fire('Thành công', 'Đơn hàng đã được thanh toán thành công!', 'success');
-      setCartItems([]); 
+  const [user, setUser] = useState(null);
+  const [orderId, setOrderId] = useState(null);
+  useEffect(() => {
+    const storedUser = localStorage.getItem("userInfo");
+    if (storedUser) setUser(JSON.parse(storedUser)); 
+  }, []);
+
+  const getLatestOrderId = async () => {
+    try {
+      const response = await fetch(`https://merent.uydev.id.vn/api/ProductOrder/user/${user.id}/latest`);
+      if (!response.ok) throw new Error("Failed to fetch latest Order ID");
+
+      const result = await response.json();
+      setOrderId(result.id);
+      console.log(result.id);
+      return result.id;
+    } catch (error) {
+      console.error("Error fetching latest Order ID:", error);
+      throw error;
     }
-  });
-
-  const { open, exit } = usePayOS(payOSConfig);
-
-  // Hàm kiểm tra đăng nhập
-  const checkLogin = () => {
-    // Thay đổi logic kiểm tra đăng nhập theo nhu cầu của bạn
-    var isLoggedIn = false;
-    if(localStorage.getItem('name')) isLoggedIn = true; // Giả sử người dùng chưa đăng nhập
-    return isLoggedIn;
   };
 
-  // Hàm tạo liên kết thanh toán từ PayOS
-  const handleGetPaymentLink = async () => {
-    if (!checkLogin()) {
-      Swal.fire({
-        title: 'Bạn chưa đăng nhập!',
-        text: 'Vui lòng đăng nhập để tiếp tục thanh toán.',
-        icon: 'warning',
-        confirmButtonText: 'Đăng nhập',
-        cancelButtonText: 'Hủy',
-        showCancelButton: true,
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Chuyển hướng đến trang đăng nhập
-          window.location.href = '/login'; // Thay đổi đường dẫn đến trang đăng nhập
-        }
-      });
+  const createOrderAndDetails = async (note) => {
+    if (!user) {
+      Swal.fire('Thất bại', 'Vui lòng đăng nhập để tiếp tục.', 'error');
       return;
     }
 
-    setIsCreatingLink(true);
-    exit(); 
+    try {
+      const orderData = {
+        description: note || "Đơn hàng mới",
+        orderDate: new Date().toISOString(),
+        totalAmount: cartItems.reduce((total, item) => total + item.quantity, 0),
+        totalPrice: totalAmount,
+        userID: user.id,
+      };
 
-      const response = await fetch("https://merent.uydev.id.vn/api/Wallet/create-payment-link-payos", {
+      const orderResponse = await fetch("https://merent.uydev.id.vn/api/ProductOrder", {
         method: "POST",
-        body: JSON.stringify({ amount: totalAmount }), 
         headers: {
           'Content-Type': 'application/json',
-          'API-Key': 'fdf89317-7b69-430e-b4ed-737fe70131a6',
-          'Client-ID': 'd5558b7b-f06c-4b63-b47f-732307c1eaa6'
-        }
+        },
+        body: JSON.stringify(orderData),
       });
 
-      const result = await response.json();
-    setPayOSConfig((oldConfig) => ({
-      ...oldConfig,
-      CHECKOUT_URL: result.checkoutUrl,
-    }));
+      if (!orderResponse.ok) throw new Error("Order creation failed");
 
-    setIsOpen(true);
-    setIsCreatingLink(false);
+      const orderId = await getLatestOrderId();
+      console.log(orderId);
+      const orderDetailPromises = cartItems.map((item) => {
+        const orderDetailData = {
+          productID: item.id,
+          orderId: orderId,  
+          quantity: item.quantity,
+          unitPrice: item.price,
+        };
+
+        return fetch("https://merent.uydev.id.vn/api/ProductOrderDetail", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderDetailData),
+        });
+      });
+
+      const orderDetailResponses = await Promise.all(orderDetailPromises);
+
+      if (orderDetailResponses.some(response => !response.ok)) {
+        throw new Error("One or more OrderDetails creation failed");
+      }
+
+      Swal.fire('Thành công', 'Đơn hàng đã được tạo thành công!', 'success');
+    } catch (error) {
+      console.error("Error creating order or order details:", error);
+      Swal.fire('Thất bại', 'Không thể tạo đơn hàng. Vui lòng thử lại.', 'error');
+    }
+    setCartItems([]);
+    localStorage.removeItem('cartItems');
+    
   };
-
-  useEffect(() => {
-    if (payOSConfig.CHECKOUT_URL != null) {
-      open();
-    }
-  }, [payOSConfig]);
-     
-
-  useEffect(() => {
-    if (isContainerRendered && payOSConfig.CHECKOUT_URL) {
-      open(); 
-    }
-  }, [payOSConfig, isContainerRendered, open]); 
 
   const onFinish = (values) => {
-    handleGetPaymentLink(); 
-    console.log('Form values: ', values);
+    createOrderAndDetails(values.note);
   };
-
+  
   return (
     <div className="checkout-container">
       <Title level={3}>Thông tin mua hàng</Title>
@@ -147,16 +149,12 @@ function Checkout() {
             <Form.Item label="Ghi chú" name="note">
               <TextArea rows={4} />
             </Form.Item>
-            <Button type="primary" htmlType="submit" className="checkout-button" loading={isCreatingLink}>
+            <Button type="primary" htmlType="submit" className="checkout-button">
               Thanh Toán
             </Button>
           </Form>
         </Col>
       </Row>
-
-      {isContainerRendered && (
-        <div id="embedded-payment-container" style={{ height: '350px', marginTop: '20px' }}></div>
-      )}
     </div>
   );
 }

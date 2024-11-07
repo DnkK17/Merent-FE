@@ -24,12 +24,14 @@ const Sidebar = () => {
       <div className="sidebar">
         <img src={logoPage} alt="Logo" />
         <div className='sidebar-content'>
-          <ul>
-            <li><a href="/Admin/Dashboard">Overview</a></li>
-            <li><a href="/Admin/Dashboard/Customers">Customers</a></li>
-            <li><a href="/Admin/Dashboard/Products">Products</a></li>
-            <li><a href="#" onClick={handleLogout}>Log out</a></li> {/* Thay đổi ở đây */}
-          </ul>
+        
+        <ul>
+            <li><a onClick={() => navigate('/Admin/Dashboard')} style={{ cursor: 'pointer' }}>Overview</a></li>
+            <li><a onClick={() => navigate('/Admin/Dashboard/Customers')} style={{ cursor: 'pointer' }}>Customers</a></li>
+            <li><a onClick={() => navigate('/Admin/Dashboard/Products')} style={{ cursor: 'pointer' }}>Products</a></li>
+            <li><a onClick={handleLogout} style={{ cursor: 'pointer' }}>Log out</a></li>
+        </ul>
+       
         </div>
       </div>
     </div>

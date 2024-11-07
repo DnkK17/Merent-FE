@@ -176,7 +176,11 @@ const ProductDash = () => {
       title: 'Image',
       dataIndex: 'urlCenter',
       key: 'urlCenter',
-      render: (url) => <img src={url} alt="Product" style={{ width: 100, height: 100 }} />,
+      render: (url) => (
+        <div className="image-container">
+          <img src={url} alt="Product" className="zoomable-image" />
+        </div>
+      ),
     },
     {
       title: 'Price',
@@ -248,7 +252,8 @@ const ProductDash = () => {
           placeholder="Product Type"
           value={newProduct.productType}
           onChange={handleInputChange}
-          style={{ marginBottom: 8 }}
+          style={{ marginBottom: 8}}
+          
         />
         <Input
           type="file"
