@@ -106,7 +106,10 @@ function Checkout() {
   
     
       const walletUpdateData = {
-        cash: wallet.cash - totalAmount,  
+        id: wallet.id,
+        userId: wallet.userId,
+        cash: wallet.cash - totalAmount,
+        walletType: wallet.walletType,  
       };
   
       const walletResponse = await fetch(`https://merent.uydev.id.vn/api/Wallet/${wallet.id}`, {
