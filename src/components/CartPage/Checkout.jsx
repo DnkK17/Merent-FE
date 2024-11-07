@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { Form, Input, Button, Typography, List, Row, Col } from 'antd';
 import Swal from 'sweetalert2';
 import './Checkout.css';
-
+import api from "../../services/apiConfig";
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 
