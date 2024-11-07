@@ -9,14 +9,29 @@ const { TextArea } = Input;
 
 function Checkout() {
   const { state } = useLocation();
+  const [wallet, setWallet] = useState(null);
   const [cartItems, setCartItems] = useState(state?.cartItems || []);
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   const [user, setUser] = useState(null);
   const [orderId, setOrderId] = useState(null);
   useEffect(() => {
+    fetchWalletInfo();
     const storedUser = localStorage.getItem("userInfo");
     if (storedUser) setUser(JSON.parse(storedUser)); 
   }, []);
+
+  const fetchWalletInfo = async () => {
+    try {
+      const { data } = await api.get("/Wallet/user-wallet");
+      if (data.success && data.data.length > 0) {
+        setWallet(data.data[0]);
+      } else {
+        message.error(data.message || "Lỗi khi lấy thông tin ví");
+      }
+    } catch (error) {
+        // message.info("Please log in to access your profile information.");
+    }
+  };
 
   const getLatestOrderId = async () => {
     try {
@@ -38,8 +53,15 @@ function Checkout() {
       Swal.fire('Thất bại', 'Vui lòng đăng nhập để tiếp tục.', 'error');
       return;
     }
-
+  
     try {
+      // Kiểm tra số dư ví
+      if (wallet.cash < totalAmount) {
+        Swal.fire('Thất bại', 'Số dư ví không đủ để thanh toán.', 'error');
+        return;
+      }
+  
+      // Tạo đơn hàng
       const orderData = {
         description: note || "Đơn hàng mới",
         orderDate: new Date().toISOString(),
@@ -47,7 +69,7 @@ function Checkout() {
         totalPrice: totalAmount,
         userID: user.id,
       };
-
+  
       const orderResponse = await fetch("https://merent.uydev.id.vn/api/ProductOrder", {
         method: "POST",
         headers: {
@@ -55,11 +77,10 @@ function Checkout() {
         },
         body: JSON.stringify(orderData),
       });
-
+  
       if (!orderResponse.ok) throw new Error("Order creation failed");
-
+  
       const orderId = await getLatestOrderId();
-      console.log(orderId);
       const orderDetailPromises = cartItems.map((item) => {
         const orderDetailData = {
           productID: item.id,
@@ -67,7 +88,7 @@ function Checkout() {
           quantity: item.quantity,
           unitPrice: item.price,
         };
-
+  
         return fetch("https://merent.uydev.id.vn/api/ProductOrderDetail", {
           method: "POST",
           headers: {
@@ -76,22 +97,40 @@ function Checkout() {
           body: JSON.stringify(orderDetailData),
         });
       });
-
+  
       const orderDetailResponses = await Promise.all(orderDetailPromises);
-
+  
       if (orderDetailResponses.some(response => !response.ok)) {
         throw new Error("One or more OrderDetails creation failed");
       }
-
-      Swal.fire('Thành công', 'Đơn hàng đã được tạo thành công!', 'success');
+  
+    
+      const walletUpdateData = {
+        cash: wallet.cash - totalAmount,  
+      };
+  
+      const walletResponse = await fetch(`https://merent.uydev.id.vn/api/Wallet/${wallet.id}`, {
+        method: "PUT", 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(walletUpdateData),
+      });
+  
+      if (!walletResponse.ok) {
+        throw new Error("Wallet update failed");
+      }
+  
+      Swal.fire('Thành công', 'Đơn hàng đã được tạo thành công và số dư ví đã được trừ!', 'success');
     } catch (error) {
       console.error("Error creating order or order details:", error);
       Swal.fire('Thất bại', 'Không thể tạo đơn hàng. Vui lòng thử lại.', 'error');
     }
+  
     setCartItems([]);
     localStorage.removeItem('cartItems');
-    
   };
+  
 
   const onFinish = (values) => {
     createOrderAndDetails(values.note);
