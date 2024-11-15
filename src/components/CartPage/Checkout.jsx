@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Typography, List, Row, Col } from 'antd';
 import Swal from 'sweetalert2';
 import './Checkout.css';
@@ -8,6 +8,7 @@ const { Title, Text } = Typography;
 const { TextArea } = Input;
 
 function Checkout() {
+  const navigate = useNavigate();
   const { state } = useLocation();
   const [wallet, setWallet] = useState(null);
   const [cartItems, setCartItems] = useState(state?.cartItems || []);
@@ -135,9 +136,16 @@ function Checkout() {
   };
   
 
-  const onFinish = (values) => {
-    createOrderAndDetails(values.note);
+  const onFinish = async (values) => {
+    try {
+      await createOrderAndDetails(values.note);
+      const latestOrderId = await getLatestOrderId();
+      navigate(`/payment?code=00&cancel=false&status=PAID&id=${latestOrderId}&orderCode=${latestOrderId}&amount=${totalAmount}`);
+    } catch (error) {
+      console.error("Error processing payment:", error);
+    }
   };
+  
   
   return (
     <div className="checkout-container">
