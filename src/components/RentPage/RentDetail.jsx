@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { Layout, Row, Col, Button, message, Card, Tooltip } from 'antd'; // Import Tooltip
 import { useLocation, useNavigate } from 'react-router-dom';
 import './Rent.css';
@@ -10,7 +10,7 @@ function RentDetail({ cartItems, setCartItems }) {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
-  
+  const productDetailRef = useRef(null);
   useEffect(() => {
     fetch('https://merent.uydev.id.vn/api/Product')
       .then((response) => {
@@ -28,7 +28,13 @@ function RentDetail({ cartItems, setCartItems }) {
   if (error) {
     return <div>Error: {error.message}</div>;
   }
-
+  const handleProductClick = (product) => {
+    navigate(`/Rent/Items/${product.name}`, { state: { product } });
+    setTimeout(() => {
+      // Cuộn đến vị trí chi tiết sản phẩm
+      productDetailRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, -1);
+  };
   const selectedProduct = location.state?.product;
   const [quantity, setQuantity] = useState(1);
 
@@ -62,10 +68,10 @@ function RentDetail({ cartItems, setCartItems }) {
   return (
     <Layout className="layout">
       <Content style={{ padding: '0 50px' }}>
-        <div className='selected-product'>
+        <div className='selected-product' ref={productDetailRef}>
           <Row className='camera-detail' gutter={[16, 16]} justify="center">
             <Col xs={24} sm={24} md={12} lg={12}>
-              <img alt={selectedProduct.name} src={selectedProduct.urlCenter} className="product-image-large" />
+              <img alt={selectedProduct.name} src={selectedProduct.urlCenter} className="product-image-large" style={{margin: '0 auto'}} />
               <Row gutter={[16, 16]} justify="space-between" className="small-images-row">
                 
                 {/* Tooltip for the small images */}
@@ -108,11 +114,11 @@ function RentDetail({ cartItems, setCartItems }) {
             </Col>
             
             <Col xs={24} sm={24} md={12} lg={6}>
-              <div className='camera-descriptionss'>
+              <div className='camera-descriptionss' style={{marginTop:'40px'}}>
                 <h1>{selectedProduct.name}</h1>
-                <h2 style={{ color: 'red' }}>{`${selectedProduct.price} VNĐ`}</h2>
+                <h2 style={{ color: 'red', fontSize:'20px',marginTop:'10px' }}>{`${selectedProduct.price} VNĐ`}</h2>
                 <p>{selectedProduct.description}</p>
-                <div style={{display:'flex',justifyContent:'center'}}>
+                <div style={{display:'flex',justifyContent:'center',marginTop:'10px'}}>
                   <Button onClick={handleDecrease} style={{ backgroundColor: 'white', border: '1px solid #d9d9d9', width:'20px' }}>-</Button>
                   <span style={{ marginTop:'5px',marginLeft:'10px',marginRight:'10px' }}>{quantity}</span>
                   <Button onClick={handleIncrease} style={{ backgroundColor: 'white', border: '1px solid #d9d9d9', width:'20px' }}>+</Button>
@@ -133,7 +139,7 @@ function RentDetail({ cartItems, setCartItems }) {
                   className="custom-cardz"
                   hoverable
                   cover={<img alt={product.name} src={product.urlCenter} className="product-image" />}
-                  onClick={() => navigate(`/Rent/Items/${product.name}`, { state: { product } })}
+                  onClick={() => handleProductClick(product)}
                 >
                   <Card.Meta title={product.name} description={`${product.price} VNĐ`} />
                 </Card>

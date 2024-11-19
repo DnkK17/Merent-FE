@@ -10,7 +10,9 @@ function HeaderPage() {
   const navigate = useNavigate();
   const storedName = localStorage.getItem('name');
   console.log(storedName); // Sẽ hiển thị tên của người dùng
-
+  const handleClick = () => {
+    navigate('/'); // Điều hướng về trang chủ
+  };
   const handleMenuClick = (e) => {
     if (e.key === 'Logout') {
       localStorage.removeItem('name');
@@ -59,16 +61,21 @@ function HeaderPage() {
 
   return (
     <Layout className='layout'>
-      <a href='/' className='page-logo flex items-center justify-center'>
-        <img src={logoPage} alt="Logo" />
-      </a>
+     <div 
+      className="page-logo flex items-center justify-center cursor-pointer" 
+      onClick={handleClick}
+    >
+      <img src={logoPage} alt="Logo" />
+    </div>
       <div className='Menu'>
+      
         <Menu
           theme="light"
           mode="horizontal"
           defaultSelectedKeys={['']}
           items={menuItems}
           onClick={handleMenuClick}
+          style={{fontSize:'11.5px'}}
         />
       </div>
     </Layout>

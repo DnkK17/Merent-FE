@@ -11,14 +11,7 @@ function FooterPage(){
     return(
         <Layout className='layout'>
         <div className="newsletter-section">
-        <Row justify="center" align="middle">
-          <Col span={12}>
-            <Input placeholder="Địa chỉ email của bạn" />
-          </Col>
-          <Col span={4}>
-            <Button type="primary">Nhận các cập nhật</Button>
-          </Col>
-        </Row>
+        
       </div>
 
 

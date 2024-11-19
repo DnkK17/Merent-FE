@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { message, Table, Button, Typography, Badge, Descriptions, Input } from "antd";
+import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../services/apiConfig";
+import axios from "axios";
 
 const { Title } = Typography;
 
 export default function ProfilePage() {
   const [wallet, setWallet] = useState(null);
   const [user, setUser] = useState(null);
+  const [userID, setUserID] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [orders, setOrders] = useState([]); // New state for orders
   const [depositAmount, setDepositAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const formatPriceVND = (price) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
@@ -18,9 +25,32 @@ export default function ProfilePage() {
   useEffect(() => {
     fetchWalletInfo();
     fetchTransactions();
+
     const storedUser = localStorage.getItem("userInfo");
-    if (storedUser) setUser(JSON.parse(storedUser));
+    if (storedUser) {
+      const userData = JSON.parse(storedUser); // Parse user info
+      setUser(userData);
+      setUserID(userData.id);
+    }
   }, []);
+
+  useEffect(() => {
+    if (userID) {
+      fetchOrders(userID); // Fetch orders if userID is available
+    }
+  }, [userID]);
+
+  useEffect(() => {
+    // Handle return URL after payment
+    const query = new URLSearchParams(location.search);
+    const transactionId = query.get("id");
+    const status = query.get("status");
+    const isCancelled = query.get("cancel") === "true";
+
+    if (transactionId) {
+      handleReturnTransaction(transactionId, isCancelled ? "Rejected" : status);
+    }
+  }, [location]);
 
   const fetchWalletInfo = async () => {
     try {
@@ -31,7 +61,7 @@ export default function ProfilePage() {
         message.error(data.message || "Lỗi khi lấy thông tin ví");
       }
     } catch (error) {
-        // message.info("Please log in to access your profile information.");
+      message.info("Vui lòng đăng nhập để truy cập thông tin ví.");
     }
   };
 
@@ -44,10 +74,71 @@ export default function ProfilePage() {
         message.error(data.message || "Lỗi khi lấy lịch sử giao dịch");
       }
     } catch (error) {
-      message.info("Please log in to access your profile information.");
+      message.info("Vui lòng đăng nhập để truy cập thông tin giao dịch.");
     }
   };
 
+  const fetchOrders = async (userID) => {
+    try {
+      const response = await axios.get(
+        `https://merent.uydev.id.vn/api/ProductOrder/user/${userID}`
+      );
+      const data = Array.isArray(response.data) ? response.data : response.data.data || [];
+      setOrders(data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
+
+  const handleReturnTransaction = async (transactionId, status) => {
+    try {
+      const response = await api.put(`/Transaction/${transactionId}`, { status });
+  
+      if (response.data.success) {
+        message.success("Giao dịch được cập nhật thành công!");
+  
+        if (status === "Approved") {
+          // Nếu giao dịch thành công, cập nhật số dư ví
+          await updateWalletBalance(transactionId);
+        }
+      } else {
+        message.error(response.data.message || "Lỗi khi cập nhật giao dịch");
+      }
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+      message.error("Lỗi máy chủ khi cập nhật giao dịch");
+    } finally {
+      navigate("/profile", { replace: true }); // Xóa query string
+    }
+  };
+  
+  const updateWalletBalance = async (transactionId) => {
+    try {
+      // Fetch transaction details to get the amount
+      const { data } = await api.get(`/Transaction/${transactionId}`);
+      if (data.success && data.data) {
+        const amount = data.data.totalAmount; // Lấy số tiền giao dịch
+  
+        // Cộng số dư vào ví
+        const walletResponse = await api.put(`/Wallet/${wallet.id}`, {
+          cash: wallet.cash + amount, // Cộng thêm số tiền
+        });
+  
+        if (walletResponse.data.success) {
+          message.success("Số dư ví được cập nhật thành công!");
+          setWallet({ ...wallet, cash: wallet.cash + amount }); // Cập nhật số dư hiển thị
+        } else {
+          message.error(walletResponse.data.message || "Lỗi khi cập nhật ví");
+        }
+      } else {
+        message.error(data.message || "Không tìm thấy thông tin giao dịch");
+      }
+    } catch (error) {
+      console.error("Error updating wallet balance:", error);
+      message.error("Lỗi khi cập nhật số dư ví");
+    }
+  };
+  
   const handleDepositPayOS = async () => {
     const amount = parseFloat(depositAmount);
     if (isNaN(amount) || amount <= 0) {
@@ -87,66 +178,72 @@ export default function ProfilePage() {
     { title: "Status", dataIndex: "status", key: "status" },
   ];
 
+  const orderColumns = [
+    { title: "Order ID", dataIndex: "id", key: "id" },
+    {
+      title: "Total Amount",
+      dataIndex: "totalPrice",
+      key: "totalPrice",
+      render: (amount) => formatPriceVND(amount),
+    },
+    {
+      title: "Order Date",
+      dataIndex: "orderDate",
+      key: "orderDate",
+      render: (date) => new Date(date).toLocaleString(),
+    },
+    { title: "Description", dataIndex: "description", key: "description" },
+    { title: "Status", dataIndex: "statusOrder", key: "statusOrder" },
+  ];
+
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
-      
-
       {user && wallet && (
         <>
-            <Title level={3}>My information</Title>
-        <div className="bg-white p-6 rounded-lg shadow-md flex flex-col md:flex-row gap-6">
-          {/* User Info */}
-          <div className="flex-1">
-            <Descriptions title="User Info" bordered column={1}>
-              <Descriptions.Item label="Name">{user.name}</Descriptions.Item>
-              <Descriptions.Item label="Email">{user.email}</Descriptions.Item>
-              <Descriptions.Item label="Phone Number">{user.phoneNumber}</Descriptions.Item>
-              <Descriptions.Item label="Gender">{user.gender}</Descriptions.Item>
-              <Descriptions.Item label="Status">
-                <Badge status="processing" text="Active" />
-              </Descriptions.Item>
-            </Descriptions>
-          </div>
-
-          {/* Wallet Info */}
-          <div className="flex-1 flex flex-col mt-4 items-center justify-center">
-            <div className="flex items-center justify-center gap-5 flex-col">
-              {/* avatar */}
-              <div className="flex items-start space-x-4">
-                <img
-                  src={user.imageUrl || "https://scontent.fsgn15-1.fna.fbcdn.net/v/t39.30808-6/434639623_2472335909820855_3445831790382380226_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeH-JQHaw_WbpG_KQ6b1YCtdNK-YQkwx0GM0r5hCTDHQY2TUsHTszOyVfIqanSt136aP3B4H8N63KHWtvBlFwMie&_nc_ohc=BSgPp-hvNKIQ7kNvgFtbUxD&_nc_zt=23&_nc_ht=scontent.fsgn15-1.fna&_nc_gid=A_35gJlWRcofN_mM26y6t2j&oh=00_AYD0icS8m6BHT4Te--Xaw5RKh_6N7FZlzxQh436VB55DKQ&oe=67262145"}
-                  alt="User Avatar"
-                  className="h-24 w-24 rounded-full object-cover"
-                />
-              </div>
-              <h2 className="text-black text-2xl font-bold">
-                Current Balance: {formatPriceVND(wallet.cash)}
-              </h2>
+          <Title level={3}>My Information</Title>
+          <div className="bg-white p-6 rounded-lg shadow-md flex flex-col md:flex-row gap-6">
+            <div className="flex-1">
+              <Descriptions title="User Info" bordered column={1}>
+                <Descriptions.Item label="Name">{user.name}</Descriptions.Item>
+                <Descriptions.Item label="Email">{user.email}</Descriptions.Item>
+                <Descriptions.Item label="Phone Number">{user.phoneNumber}</Descriptions.Item>
+                <Descriptions.Item label="Gender">{user.gender}</Descriptions.Item>
+                <Descriptions.Item label="Status">
+                  <Badge status="processing" text="Active" />
+                </Descriptions.Item>
+              </Descriptions>
             </div>
-            <Button type="primary" onClick={showModal} className="mt-4 w-full md:w-auto">
-              Deposit PayOS
-            </Button>
+            <div className="flex-1 flex flex-col mt-4 items-center justify-center">
+              <div className="flex items-center justify-center gap-5 flex-col">
+                <h2 className="text-black text-2xl font-bold">
+                  Current Balance: {formatPriceVND(wallet.cash)}
+                </h2>
+              </div>
+              <Button type="primary" onClick={showModal} className="mt-4 w-full md:w-auto">
+                Deposit PayOS
+              </Button>
+            </div>
           </div>
-        </div>
         </>
       )}
-
       <Title level={3}>My Transactions</Title>
-
-      {transactions.length > 0 ? (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <Table
-            columns={transactionColumns}
-            dataSource={transactions}
-            rowKey="id"
-            pagination={{ pageSize: 5 }}
-          />
-        </div>
-      ) : (
-        <Typography.Text>No transactions found.</Typography.Text>
-      )}
-
-      {/* Deposit Modal using Tailwind */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <Table
+          columns={transactionColumns}
+          dataSource={transactions}
+          rowKey="id"
+          pagination={{ pageSize: 5 }}
+        />
+      </div>
+      <Title level={3}>My Orders</Title>
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <Table
+          columns={orderColumns}
+          dataSource={orders}
+          rowKey="id"
+          pagination={{ pageSize: 5 }}
+        />
+      </div>
       {isModalVisible && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
@@ -170,7 +267,7 @@ export default function ProfilePage() {
                 className={`px-4 py-2 text-white rounded-md ${loading ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"}`}
                 disabled={loading}
               >
-                {loading ? "Processing..." : "Confirm"}
+                {loading ? "Processing..." : "Proceed"}
               </button>
             </div>
           </div>

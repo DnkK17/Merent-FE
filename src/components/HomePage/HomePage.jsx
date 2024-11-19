@@ -57,12 +57,12 @@ function HomePage() {
         
         {/*Product*/}
         <div className="site-product">
-          <h2 className="section-titl">Sản Phẩm Thuê Nhiều</h2>
+          <h2 className="section-titl">Sản Phẩm Được Ưa Chuộng  </h2>
           <Row gutter={[2, 99]} justify="center">
             {products.map(product => (
               <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
-                <Card className="custom-cards"  hoverable cover={<img alt={product.name} src={product.imgSrc} />}>
-                  <Card.Meta title={product.name} description={product.price} />
+                <Card className="custom-cards"  cover={<img alt={product.name} src={product.imgSrc} />}>
+                  <Card.Meta title={product.name}  />
                   
                 </Card>
               </Col>

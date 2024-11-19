@@ -43,9 +43,11 @@
 .home-canon{
   width: 100%;
   padding-bottom: 100px;
+ 
 }
 .home-canon img{
   width: 95%;
+  margin: 0 auto;
 }
 .ant-card-cover img {
   width: 100%;
@@ -55,7 +57,7 @@
 }
 .home-camera img{
   width: 80%;
-  margin-right: 20px;
+  margin: 0 auto;
   padding-bottom: 50px;
 }
 
