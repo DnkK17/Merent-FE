@@ -11,7 +11,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState(null);
   const [userID, setUserID] = useState(null);
   const [transactions, setTransactions] = useState([]);
-  const [orders, setOrders] = useState([]); // New state for orders
+  const [orders, setOrders] = useState([]);
   const [depositAmount, setDepositAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -22,13 +22,14 @@ export default function ProfilePage() {
   const formatPriceVND = (price) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
 
+  // Fetch initial data
   useEffect(() => {
     fetchWalletInfo();
     fetchTransactions();
 
     const storedUser = localStorage.getItem("userInfo");
     if (storedUser) {
-      const userData = JSON.parse(storedUser); // Parse user info
+      const userData = JSON.parse(storedUser);
       setUser(userData);
       setUserID(userData.id);
     }
@@ -36,12 +37,11 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (userID) {
-      fetchOrders(userID); // Fetch orders if userID is available
+      fetchOrders(userID);
     }
   }, [userID]);
 
   useEffect(() => {
-    // Handle return URL after payment
     const query = new URLSearchParams(location.search);
     const transactionId = query.get("id");
     const status = query.get("status");
@@ -52,6 +52,7 @@ export default function ProfilePage() {
     }
   }, [location]);
 
+  // Fetch wallet information
   const fetchWalletInfo = async () => {
     try {
       const { data } = await api.get("/Wallet/user-wallet");
@@ -65,6 +66,7 @@ export default function ProfilePage() {
     }
   };
 
+  // Fetch transaction history
   const fetchTransactions = async () => {
     try {
       const { data } = await api.get("/Transaction/transactions-user?walletTypeEnums=0");
@@ -78,6 +80,7 @@ export default function ProfilePage() {
     }
   };
 
+  // Fetch user orders
   const fetchOrders = async (userID) => {
     try {
       const response = await axios.get(
@@ -90,55 +93,7 @@ export default function ProfilePage() {
     }
   };
 
-  const handleReturnTransaction = async (transactionId, status) => {
-    try {
-      const response = await api.put(`/Transaction/${transactionId}`, { status });
-  
-      if (response.data.success) {
-        message.success("Giao dịch được cập nhật thành công!");
-  
-        if (status === "Approved") {
-          // Nếu giao dịch thành công, cập nhật số dư ví
-          await updateWalletBalance(transactionId);
-        }
-      } else {
-        message.error(response.data.message || "Lỗi khi cập nhật giao dịch");
-      }
-    } catch (error) {
-      console.error("Error updating transaction:", error);
-      message.error("Lỗi máy chủ khi cập nhật giao dịch");
-    } finally {
-      navigate("/profile", { replace: true }); // Xóa query string
-    }
-  };
-  
-  const updateWalletBalance = async (transactionId) => {
-    try {
-      // Fetch transaction details to get the amount
-      const { data } = await api.get(`/Transaction/${transactionId}`);
-      if (data.success && data.data) {
-        const amount = data.data.totalAmount; // Lấy số tiền giao dịch
-  
-        // Cộng số dư vào ví
-        const walletResponse = await api.put(`/Wallet/${wallet.id}`, {
-          cash: wallet.cash + amount, // Cộng thêm số tiền
-        });
-  
-        if (walletResponse.data.success) {
-          message.success("Số dư ví được cập nhật thành công!");
-          setWallet({ ...wallet, cash: wallet.cash + amount }); // Cập nhật số dư hiển thị
-        } else {
-          message.error(walletResponse.data.message || "Lỗi khi cập nhật ví");
-        }
-      } else {
-        message.error(data.message || "Không tìm thấy thông tin giao dịch");
-      }
-    } catch (error) {
-      console.error("Error updating wallet balance:", error);
-      message.error("Lỗi khi cập nhật số dư ví");
-    }
-  };
-  
+  // Handle deposit via PayOS
   const handleDepositPayOS = async () => {
     const amount = parseFloat(depositAmount);
     if (isNaN(amount) || amount <= 0) {
@@ -147,25 +102,46 @@ export default function ProfilePage() {
     }
 
     setLoading(true);
+
     try {
-      const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
-      setLoading(false);
-      setIsModalVisible(false);
-      if (data.success) {
-        message.success("Nạp tiền thành công");
-        window.location.href = data.data;
+      const walletResponse = await api.put(`/Wallet/${wallet.id}`, {
+        id: wallet.id,
+        userId: wallet.userId,
+        cash: wallet.cash + amount,
+        walletType: wallet.walletType,
+        
+      });
+
+      if (walletResponse.data.success) {
+        message.success("Số dư ví được cập nhật thành công!");
+        setWallet({ ...wallet, cash: wallet.cash + amount });
+
+        const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
+        setLoading(false);
+        setIsModalVisible(false);
+
+        if (data.success) {
+          message.success("Nạp tiền thành công");
+          window.location.href = data.data;
+        } else {
+          message.error(data.message || "Lỗi khi tạo liên kết nạp tiền");
+        }
       } else {
-        message.error(data.message || "Lỗi khi tạo liên kết nạp tiền");
+        throw new Error(walletResponse.data.message || "Lỗi khi cập nhật ví");
       }
     } catch (error) {
-      setLoading(false);
+      console.error("Error during deposit:", error);
       message.error(error.message || "Lỗi kết nối máy chủ");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Modal handlers
   const showModal = () => setIsModalVisible(true);
   const handleCancel = () => setIsModalVisible(false);
 
+  // Table columns
   const transactionColumns = [
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "Description", dataIndex: "description", key: "description" },
@@ -264,7 +240,9 @@ export default function ProfilePage() {
               </button>
               <button
                 onClick={handleDepositPayOS}
-                className={`px-4 py-2 text-white rounded-md ${loading ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"}`}
+                className={`px-4 py-2 text-white rounded-md ${
+                  loading ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"
+                }`}
                 disabled={loading}
               >
                 {loading ? "Processing..." : "Proceed"}
