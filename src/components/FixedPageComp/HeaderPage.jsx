@@ -75,7 +75,7 @@ function HeaderPage() {
           defaultSelectedKeys={['']}
           items={menuItems}
           onClick={handleMenuClick}
-          style={{fontSize:'11.5px'}}
+          
         />
       </div>
     </Layout>
