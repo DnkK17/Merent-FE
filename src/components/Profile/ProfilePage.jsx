@@ -53,7 +53,7 @@ console.log(location.hash);   // In ra phần hash của URL
     console.log(status);
     console.log(isCancelled);
     console.log(amount);
-    if (isCancelled != null) {
+    if (isCancelled == null) {
       handleReturnTransaction( amount);
     }
   }, [location]);
