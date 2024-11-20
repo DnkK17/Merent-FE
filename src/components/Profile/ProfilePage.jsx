@@ -56,7 +56,7 @@ console.log(location.hash);   // In ra phần hash của URL
     if (isCancelled==null) {
       handleReturnTransaction( amount,wallet);
     }
-  }, [location]);
+  }, [location,wallet]);
 
   const fetchWalletInfo = async () => {
     try {
