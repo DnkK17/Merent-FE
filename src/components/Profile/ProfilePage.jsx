@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { message, Table, Button, Typography, Badge, Descriptions, Input } from "antd";
+import { message, Table, Button, Typography, Badge, Descriptions, Input, Modal } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../services/apiConfig";
 import axios from "axios";
@@ -46,30 +46,23 @@ export default function ProfilePage() {
     const canceled = searchQuery.get("canceled");
     const transactionId = searchQuery.get("transactionId");
     const amount = parseFloat(searchQuery.get("amount"));
-    const cancel = searchQuery.get("cancel");
-    const status = searchQuery.get("status");
-    const orderCode = searchQuery.get("orderCode");
   
     // Kiểm tra nếu transactionId đã có và giao dịch chưa xử lý
     if (transactionId && !sessionStorage.getItem(`processed-${transactionId}`)) {
       if (success === "true" && wallet && !loading) {
         // Xử lý giao dịch thành công
         setLoading(true);
-        handleReturnTransaction(amount, wallet, "success", transactionId)
+        handleReturnTransaction(amount, wallet, "success")
           .finally(() => setLoading(false));
       } else if (canceled === "true" && wallet && !loading) {
         // Xử lý giao dịch bị hủy
         setLoading(true);
-        handleReturnTransaction(amount, wallet, "canceled", transactionId)
-          .finally(() => setLoading(false));
-      } else if (cancel === "true" && status === "CANCELLED" && orderCode) {
-        // Xử lý khi giao dịch bị hủy
-        setLoading(true);
-        handleReturnTransaction(amount, wallet, "canceled", transactionId)
+        handleReturnTransaction(amount, wallet, "canceled")
           .finally(() => setLoading(false));
       }
     }
   }, [location.search, wallet]);
+  
 
   const fetchWalletInfo = async () => {
     try {
@@ -132,7 +125,7 @@ export default function ProfilePage() {
         message.success("Liên kết thanh toán được tạo thành công");
         window.location.href = data.data;
       } else {
-        message.error(data.message || "Lỗi khi tạo liên kết thanh toán");
+        message.error(walletResponse.data.message || "Lỗi khi tạo liên kết thanh toán");
       }
     } catch (error) {
       console.error("Error during PayOS:", error);
@@ -140,7 +133,7 @@ export default function ProfilePage() {
     }
   };
 
-  const handleReturnTransaction = async (amount, wallet, type, transactionId) => {
+  const handleReturnTransaction = async (amount, wallet, type) => {
     try {
       if (!wallet) {
         message.error("Không thể xác định thông tin ví.");
@@ -162,7 +155,7 @@ export default function ProfilePage() {
   
       let response;
       if (type === "success") {
-        // Xử lý khi giao dịch thành công
+        // Xử lý khi giao dịch thành công, có thể là việc cập nhật ví
         response = await api.put(`/Wallet/${wallet.id}`, {
           id: wallet.id,
           userId: wallet.userId,
@@ -246,51 +239,52 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1">
               <Descriptions title="Wallet Info" bordered column={1}>
-                <Descriptions.Item label="Wallet ID">{wallet.id}</Descriptions.Item>
-                <Descriptions.Item label="Cash">{formatPriceVND(wallet.cash)}</Descriptions.Item>
+                <Descriptions.Item label="Balance">
+                  {formatPriceVND(wallet.cash)}
+                </Descriptions.Item>
+                <Descriptions.Item label="Wallet Type">
+                  {wallet.walletType === 0 ? "Personal" : "Business"}
+                </Descriptions.Item>
               </Descriptions>
-              <div className="mt-4">
-                <Input
-                  type="number"
-                  placeholder="Enter deposit amount"
-                  value={depositAmount}
-                  onChange={(e) => setDepositAmount(e.target.value)}
-                />
-                <Button
-                  type="primary"
-                  className="mt-2 w-full"
-                  onClick={handlePayOS}
-                  loading={loading}
-                >
-                  Deposit
-                </Button>
-              </div>
             </div>
+          </div>
+          <div className="my-6">
+            <Title level={4}>Transaction History</Title>
+            <Table columns={transactionColumns} dataSource={transactions} rowKey="id" />
+          </div>
+          <div className="my-6">
+            <Title level={4}>Orders</Title>
+            <Table columns={orderColumns} dataSource={orders} rowKey="id" />
+          </div>
+          <div>
+            <Button type="primary" onClick={showModal}>
+              Deposit Funds
+            </Button>
+            <Modal
+              title="Deposit Funds"
+              visible={isModalVisible}
+              onCancel={handleCancel}
+              footer={null}
+            >
+              <Input
+                type="number"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+                placeholder="Enter amount to deposit"
+                min={0}
+              />
+              <Button
+                type="primary"
+                onClick={handlePayOS}
+                style={{ marginTop: "20px" }}
+                loading={loading}
+              >
+                Deposit
+              </Button>
+            </Modal>
           </div>
         </>
       )}
-
-      <Title level={3}>Transaction History</Title>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <Table
-          columns={transactionColumns}
-          dataSource={transactions}
-          rowKey="id"
-          bordered
-          pagination={{ pageSize: 5 }}
-        />
-      </div>
-
-      <Title level={3}>My Orders</Title>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <Table
-          columns={orderColumns}
-          dataSource={orders}
-          rowKey="id"
-          bordered
-          pagination={{ pageSize: 5 }}
-        />
-      </div>
     </div>
   );
 }
