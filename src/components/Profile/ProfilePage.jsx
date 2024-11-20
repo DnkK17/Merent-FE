@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { message, Table, Button, Typography, Badge, Descriptions, Input, Modal } from "antd";
+import { message, Table, Button, Typography, Badge, Descriptions, Input, Modal ,Form} from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../services/apiConfig";
 import axios from "axios";
@@ -14,8 +14,10 @@ export default function ProfilePage() {
   const [orders, setOrders] = useState([]);
   const [depositAmount, setDepositAmount] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isModalDepositVisible, setIsModalDepositVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
+  const [isEditing, setIsEditing] = useState(false);
+  const [form] = Form.useForm();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -40,28 +42,7 @@ export default function ProfilePage() {
     }
   }, [userID]);
 
-  // useEffect(() => {
-  //   const searchQuery = new URLSearchParams(location.search);
-  //   const success = searchQuery.get("success");
-  //   const canceled = searchQuery.get("canceled");
-  //   const transactionId = searchQuery.get("transactionId");
-  //   const amount = parseFloat(searchQuery.get("amount"));
-  
-  //   // Kiểm tra nếu transactionId đã có và giao dịch chưa xử lý
-   
-  //     if (success === "true" && wallet && !loading) {
-  //       // Xử lý giao dịch thành công
-  //       setLoading(true);
-  //       handleReturnTransaction(amount, wallet, "success")
-  //         .finally(() => setLoading(false));
-  //     } else if (canceled === "true" && wallet && !loading) {
-  //       // Xử lý giao dịch bị hủy
-  //       setLoading(true);
-  //       handleReturnTransaction(amount, wallet, "canceled")
-  //         .finally(() => setLoading(false));
-  //     }
-    
-  // }, [location.search, wallet]);
+
   
 
   const fetchWalletInfo = async () => {
@@ -125,63 +106,38 @@ export default function ProfilePage() {
     }
   };
 
-  const handleReturnTransaction = async (amount, wallet, type) => {
-    try {
-      if (!wallet) {
-        message.error("Không thể xác định thông tin ví.");
-        return;
-      }
-  
-      if (isNaN(amount) || amount <= 0) {
-        message.error("Số tiền nạp không hợp lệ.");
-        return;
-      }
-  
-      // Tránh trừ tiền nhiều lần
-      const updatedCash = wallet.cash - amount;
-  
-      if (updatedCash < 0 && type === "canceled") {
-        message.error("Số dư không đủ để trừ.");
-        return;
-      }
-  
-      let response;
-      if (type === "canceled") {
-        // Xử lý khi giao dịch thành công, có thể là việc cập nhật ví
-        response = await api.put(`/Wallet/${wallet.id}`, {
-          id: wallet.id,
-          userId: wallet.userId,
-          cash: updatedCash,
-          walletType: wallet.walletType,
-        });
-        if (response.data.success) {
-          setWallet({ ...wallet, cash: updatedCash });
-          message.success("Giao dịch thành công.");
-        }
-      } else if (type === "success") {
-        // Xử lý khi giao dịch bị hủy
-        response = await api.put(`/Wallet/${wallet.id}`, {
-          id: wallet.id,
-          userId: wallet.userId,
-          cash: wallet.cash, // Không thay đổi số dư ví nếu giao dịch bị hủy
-          walletType: wallet.walletType,
-        });
-        if (response.data.success) {
-          message.info("Giao dịch đã bị hủy.");
-        }
-      }
-  
-      // Đánh dấu giao dịch đã xử lý để tránh trừ tiền nhiều lần
-     
-    } catch (error) {
-      console.error("Error handling transaction:", error);
-      message.error("Lỗi trong quá trình xử lý giao dịch.");
-    }
+
+  const showModalDeposit = () => setIsModalDepositVisible(true);
+  const handleCancelDeposit = () => setIsModalDepositVisible(false);
+  const showModal = () => {
+    setIsModalVisible(true);
+    form.setFieldsValue({
+      name: user.name,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+    });
   };
 
-  const showModal = () => setIsModalVisible(true);
   const handleCancel = () => setIsModalVisible(false);
 
+  const handleUpdateProfile = async (values) => {
+    setLoading(true);
+    try {
+      // Update user profile via API (assuming you have a suitable endpoint)
+      const response = await api.put(`/User/${userID}`, values);
+      if (response.data.success) {
+        message.success("Cập nhật thông tin thành công!");
+        setUser({ ...user, ...values });
+        setIsModalVisible(false);
+      } else {
+        message.error("Cập nhật thất bại, vui lòng thử lại.");
+      }
+    } catch (error) {
+      message.error("Lỗi khi cập nhật thông tin người dùng.");
+    } finally {
+      setLoading(false);
+    }
+  };
   const transactionColumns = [
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "Description", dataIndex: "description", key: "description" },
@@ -240,6 +196,46 @@ export default function ProfilePage() {
               </Descriptions>
             </div>
           </div>
+          <div className="my-4">
+            <Button type="primary" onClick={showModal}>
+              Edit Info
+            </Button>
+          </div>
+
+          {/* Modal for Editing Profile */}
+          <Modal
+            title="Edit Profile"
+            visible={isModalVisible}
+            onCancel={handleCancel}
+            footer={null}
+          >
+            <Form form={form} layout="vertical" onFinish={handleUpdateProfile}>
+              <Form.Item
+                name="name"
+                label="Name"
+                rules={[{ required: true, message: "Please enter your name" }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="email"
+                label="Email"
+                rules={[{ required: true, message: "Please enter your email" }]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="phoneNumber"
+                label="Phone Number"
+                rules={[{ required: true, message: "Please enter your phone number" }]}
+              >
+                <Input />
+              </Form.Item>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                Update
+              </Button>
+            </Form>
+          </Modal>
           <div className="my-6">
             <Title level={4}>Transaction History</Title>
             <Table columns={transactionColumns} dataSource={transactions} rowKey="id" />
@@ -249,13 +245,13 @@ export default function ProfilePage() {
             <Table columns={orderColumns} dataSource={orders} rowKey="id" />
           </div>
           <div>
-            <Button type="primary" onClick={showModal}>
+            <Button type="primary" onClick={showModalDeposit}>
               Deposit Funds
             </Button>
             <Modal
               title="Deposit Funds"
-              visible={isModalVisible}
-              onCancel={handleCancel}
+              visible={isModalDepositVisible}
+              onCancel={handleCancelDeposit}
               footer={null}
             >
               <Input
@@ -268,7 +264,7 @@ export default function ProfilePage() {
               <Button
                 type="primary"
                 onClick={handlePayOS}
-                style={{ marginTop: "20px" }}
+                style={{ marginTop: "20px" }}   
                 loading={loading}
               >
                 Deposit

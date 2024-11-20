@@ -69,49 +69,70 @@ function RentDetail({ cartItems, setCartItems }) {
     <Layout className="layout">
       <Content style={{ padding: '0 50px' }}>
         <div className='selected-product' ref={productDetailRef}>
-          <Row className='camera-detail' gutter={[16, 16]} justify="center">
-            <Col xs={24} sm={24} md={12} lg={12}>
-              <img alt={selectedProduct.name} src={selectedProduct.urlCenter} className="product-image-large" style={{margin: '0 auto'}} />
-              <Row gutter={[16, 16]} justify="space-between" className="small-images-row">
-                
-                {/* Tooltip for the small images */}
-                <Col xs={6}>
-                  <Tooltip
-                    title={<img src={selectedProduct.urlLeft} alt="zoom" className="zoom-image" />}
-                    mouseEnterDelay={0.1}
-                    mouseLeaveDelay={0.1}
-                    overlayClassName="custom-tooltip"
-                    placement="top"
-                  >
-                    <img alt={`${selectedProduct.name} `} src={selectedProduct.urlLeft} className="product-image-small" />
-                  </Tooltip>
-                </Col>
-                
-                <Col xs={6}>
-                  <Tooltip
-                    title={<img src={selectedProduct.urlRight} alt="zoom" className="zoom-image" />}
-                    mouseEnterDelay={0.1}
-                    mouseLeaveDelay={0.1}
-                    overlayClassName="custom-tooltip"
-                    placement="top"
-                  >
-                    <img alt={`${selectedProduct.name} `} src={selectedProduct.urlRight} className="product-image-small" />
-                  </Tooltip>
-                </Col>
-                
-                <Col xs={6}>
-                  <Tooltip
-                    title={<img src={selectedProduct.urlSide} alt="zoom" className="zoom-image" />}
-                    mouseEnterDelay={0.1}
-                    mouseLeaveDelay={0.1}
-                    overlayClassName="custom-tooltip"
-                    placement="top"
-                  >
-                    <img alt={`${selectedProduct.name} `} src={selectedProduct.urlSide} className="product-image-small" />
-                  </Tooltip>
-                </Col>
-              </Row>
-            </Col>
+        <Row className='camera-detail' gutter={[16, 16]} justify="center">
+  <Col xs={24} sm={24} md={12} lg={12}>
+    <img 
+      alt={selectedProduct.name} 
+      src={selectedProduct.urlCenter} 
+      className="product-image-large" 
+      style={{ margin: '0 auto' }} 
+    />
+
+    {selectedProduct.productType === "Camera" && (
+      <Row gutter={[16, 16]} justify="space-between" className="small-images-row">
+        {/* Tooltip for the small images */}
+        <Col xs={6}>
+          <Tooltip
+            title={<img src={selectedProduct.urlLeft} alt="zoom" className="zoom-image" />}
+            mouseEnterDelay={0.1}
+            mouseLeaveDelay={0.1}
+            overlayClassName="custom-tooltip"
+            placement="top"
+          >
+            <img 
+              alt={`${selectedProduct.name} `} 
+              src={selectedProduct.urlLeft} 
+              className="product-image-small" 
+            />
+          </Tooltip>
+        </Col>
+
+        <Col xs={6}>
+          <Tooltip
+            title={<img src={selectedProduct.urlRight} alt="zoom" className="zoom-image" />}
+            mouseEnterDelay={0.1}
+            mouseLeaveDelay={0.1}
+            overlayClassName="custom-tooltip"
+            placement="top"
+          >
+            <img 
+              alt={`${selectedProduct.name} `} 
+              src={selectedProduct.urlRight} 
+              className="product-image-small" 
+            />
+          </Tooltip>
+        </Col>
+
+        <Col xs={6}>
+          <Tooltip
+            title={<img src={selectedProduct.urlSide} alt="zoom" className="zoom-image" />}
+            mouseEnterDelay={0.1}
+            mouseLeaveDelay={0.1}
+            overlayClassName="custom-tooltip"
+            placement="top"
+          >
+            <img 
+              alt={`${selectedProduct.name} `} 
+              src={selectedProduct.urlSide} 
+              className="product-image-small" 
+            />
+          </Tooltip>
+        </Col>
+      </Row>
+    )}
+  </Col>
+
+
             
             <Col xs={24} sm={24} md={12} lg={6}>
               <div className='camera-descriptionss' style={{marginTop:'40px'}}>

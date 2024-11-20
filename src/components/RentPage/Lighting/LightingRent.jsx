@@ -32,7 +32,7 @@ function LightingRent() {
           <h2 className="section-title">ÁNH SÁNG</h2>
           <Row gutter={[16, 50]} justify="center">
             {products
-              .filter(product => product.productType === 'light') 
+              .filter(product => product.productType === 'Lightning') 
               .map(product => (
                 <Col key={product.id} xs={24} sm={24} md={12} lg={6}>
                   <Card

@@ -33,6 +33,7 @@ function HeaderPage() {
         { label: 'Máy ảnh', key: 'Rent/Cameras' },
         { label: 'Ống kính', key: 'Rent/Lens' },
         { label: 'Ánh sáng', key: 'Rent/Lighting' },
+        { label: 'Chân máy', key: 'Rent/Gimbal' },
       ],
     },
     { label: 'DỊCH VỤ',

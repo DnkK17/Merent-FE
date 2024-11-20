@@ -11,6 +11,7 @@ const { TextArea } = Input;
 function Checkout() {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const [form] = Form.useForm(); // Sử dụng Ant Design Form instance
   const [wallet, setWallet] = useState(null);
   const [cartItems, setCartItems] = useState(state?.cartItems || []);
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -20,8 +21,28 @@ function Checkout() {
   useEffect(() => {
     fetchWalletInfo();
     const storedUser = localStorage.getItem('userInfo');
-    if (storedUser) setUser(JSON.parse(storedUser));
-  }, []);
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+
+      // Tự động điền thông tin người dùng vào form
+      form.setFieldsValue({
+        email: parsedUser.email,
+        name: parsedUser.name,
+        phoneNumber: parsedUser.phoneNumber,
+      });
+    }
+
+    // Tự động điền ghi chú dựa trên danh sách sản phẩm
+    if (cartItems.length > 0) {
+      const noteContent = cartItems
+        .map((item) => `${item.quantity} x ${item.name}`)
+        .join(', ');
+      form.setFieldsValue({
+        note: `Danh sách sản phẩm: ${noteContent}`,
+      });
+    }
+  }, [cartItems, form]);
 
   const fetchWalletInfo = async () => {
     try {
@@ -59,13 +80,11 @@ function Checkout() {
     }
 
     try {
-      // Kiểm tra số dư ví
       if (wallet.cash < totalAmount) {
         Swal.fire('Thất bại', 'Số dư ví không đủ để thanh toán.', 'error');
         return;
       }
 
-      // Tạo đơn hàng
       const orderData = {
         description: note || 'Đơn hàng mới',
         orderDate: new Date().toISOString(),
@@ -154,9 +173,15 @@ function Checkout() {
         try {
           await createOrderAndDetails(values.note);
           const latestOrderId = await getLatestOrderId();
-          navigate(
-            `/payment?code=00&cancel=false&status=PAID&id=${latestOrderId}&orderCode=${latestOrderId}&amount=${totalAmount}`
-          );
+          if (totalAmount > wallet.cash)
+            navigate(
+              `/payment?code=00&cancel=true&status=CANCELLED&id=${latestOrderId}&orderCode=${latestOrderId}&amount=${totalAmount}`
+            );
+          else {
+            navigate(
+              `/payment?code=00&cancel=false&status=PAID&id=${latestOrderId}&orderCode=${latestOrderId}&amount=${totalAmount}`
+            );
+          }
         } catch (error) {
           console.error('Error processing payment:', error);
         }
@@ -205,7 +230,7 @@ function Checkout() {
           </div>
         </Col>
         <Col span={12}>
-          <Form layout="vertical" onFinish={onFinish} className="checkout-form">
+          <Form layout="vertical" onFinish={onFinish} className="checkout-form" form={form}>
             <Form.Item
               label="Email"
               name="email"
@@ -215,7 +240,7 @@ function Checkout() {
             </Form.Item>
             <Form.Item
               label="Họ và tên"
-              name="fullName"
+              name="name"
               rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
             >
               <Input />
@@ -237,9 +262,11 @@ function Checkout() {
             <Form.Item label="Ghi chú" name="note">
               <TextArea rows={4} />
             </Form.Item>
-            <Button type="primary" htmlType="submit" className="checkout-button">
-              Thanh Toán
-            </Button>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Thanh toán
+              </Button>
+            </Form.Item>
           </Form>
         </Col>
       </Row>

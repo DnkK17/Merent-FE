@@ -6,7 +6,7 @@ import '../Rent.css';
 const { Content } = Layout;
 
 
-function LensRent() {
+function GimbalRent() {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
@@ -29,10 +29,10 @@ function LensRent() {
     <Layout className="layout">
       <Content style={{ padding: '0 50px' }}>
         <div className='related-products-section'>
-          <h2 className="section-title">ỐNG KÍNH</h2>
+          <h2 className="section-title">GIMBAL</h2>
           <Row gutter={[16, 50]} justify="center">
             {products
-              .filter(product => product.productType === 'Lens') 
+              .filter(product => product.productType === 'Gimbal') 
               .map(product => (
                 <Col key={product.id} xs={24} sm={24} md={12} lg={6}>
                   <Card
@@ -53,4 +53,4 @@ function LensRent() {
   );
 }
 
-export default LensRent;
+export default GimbalRent;

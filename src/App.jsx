@@ -22,6 +22,7 @@ import RentDetail from "./components/RentPage/RentDetail";
 import SignUp from "./components/SignUp/SignUp";
 import Terms from "./components/TermsPage/Terms";
 import Workshop from "./components/Workshop/Workshop";
+import GimbalRent from "./components/RentPage/Gimbal/GimbalRent";
 
 function App() {
   const user = localStorage.getItem('name');
@@ -53,6 +54,7 @@ useEffect(() => {
           <Route path="/Rent/Items/:name" element={<RentDetail cartItems={cartItems} setCartItems={setCartItems} />} />
           <Route path="/Rent/Lighting" element={< LightingRent/>} />
           <Route path="/Rent/Lens" element={< LensRent/>} />
+          <Route path="/Rent/Gimbal" element = {<GimbalRent/>}/>
           <Route path="/Services/Studio" element={<PhotoServices />} />
           <Route path="/TermsOfUse" element={< Terms/>} />
           <Route path="/Workshop" element={<Workshop/>}/>
