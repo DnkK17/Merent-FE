@@ -45,18 +45,15 @@ export default function ProfilePage() {
 console.log(location.hash);   // In ra phần hash của URL
 
     const searchQuery = new URLSearchParams(location.search);
-    const hashParams = location.hash.includes("?")
-    ? new URLSearchParams(location.hash.split("?")[1])
-    : new URLSearchParams();
-    console.log(searchQuery);
-    const transactionId = hashParams.get("transactionId") || searchQuery.get("id");
-    const status = hashParams.get("status") || searchQuery.get("status");
+    const transactionId =  searchQuery.get("id");
+    const status =  searchQuery.get("status");
     const isCancelled = searchQuery.get("success");
-    const amount = parseFloat(hashParams.get("amount") || searchQuery.get("amount"));
+    const amount =  searchQuery.get("amount");
     console.log(transactionId);
     console.log(status);
     console.log(isCancelled);
-    if (isCancelled == null) {
+    console.log(amount);
+    if (isCancelled) {
       handleReturnTransaction( amount);
     }
   }, [location]);
