@@ -48,7 +48,7 @@ export default function ProfilePage() {
     const amount = parseFloat(searchQuery.get("amount"));
   
     // Kiểm tra nếu transactionId đã có và giao dịch chưa xử lý
-    if (transactionId && !sessionStorage.getItem(`processed-${transactionId}`)) {
+   
       if (success === "true" && wallet && !loading) {
         // Xử lý giao dịch thành công
         setLoading(true);
@@ -60,7 +60,7 @@ export default function ProfilePage() {
         handleReturnTransaction(amount, wallet, "canceled")
           .finally(() => setLoading(false));
       }
-    }
+    
   }, [location.search, wallet]);
   
 
@@ -180,7 +180,7 @@ export default function ProfilePage() {
       }
   
       // Đánh dấu giao dịch đã xử lý để tránh trừ tiền nhiều lần
-      sessionStorage.setItem(`processed-${transactionId}`, "true");
+     
     } catch (error) {
       console.error("Error handling transaction:", error);
       message.error("Lỗi trong quá trình xử lý giao dịch.");
