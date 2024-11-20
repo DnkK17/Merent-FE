@@ -42,13 +42,16 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const searchQuery = new URLSearchParams(location.search);
-    const hashQuery = new URLSearchParams(location.hash.split("?")[1]);
+    const hashParams = location.hash.includes("?")
+    ? new URLSearchParams(location.hash.split("?")[1])
+    : new URLSearchParams();
     console.log(searchQuery);
     console.log(hashQuery);
-    const transactionId = hashQuery.get("transactionId") || searchQuery.get("id");
-    const status = hashQuery.get("status") || searchQuery.get("status");
-    const isCancelled = hashQuery.get("cancel") === "true" || searchQuery.get("cancel") === "true";
-    const amount = parseFloat(hashQuery.get("amount") || searchQuery.get("amount"));
+    const transactionId = hashParams.get("transactionId") || searchQuery.get("id");
+    const status = hashParams.get("status") || searchQuery.get("status");
+    const isCancelled =
+    hashParams.get("cancel") === "true" || searchQuery.get("cancel") === "true";
+    const amount = parseFloat(hashParams.get("amount") || searchQuery.get("amount"));
     console.log(transactionId);
     
     if (transactionId) {
