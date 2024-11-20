@@ -54,7 +54,7 @@ console.log(location.hash);   // In ra phần hash của URL
     console.log(isCancelled);
     console.log(amount);
     if (isCancelled) {
-      handleReturnTransaction( amount);
+      handleReturnTransaction( amount,wallet);
     }
   }, [location]);
 
@@ -171,7 +171,7 @@ console.log(location.hash);   // In ra phần hash của URL
     }
   };
 
-  const handleReturnTransaction = async ( amount) => {
+  const handleReturnTransaction = async ( amount,wallet) => {
     try {
       if (!wallet) {
         message.error("Không thể xác định thông tin ví.");
