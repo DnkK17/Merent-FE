@@ -32,7 +32,7 @@ export default function ProfilePage() {
       setUser(userData);
       setUserID(userData.id);
     }
-  }, []);
+  }, [location]);
 
   useEffect(() => {
     if (userID) {
