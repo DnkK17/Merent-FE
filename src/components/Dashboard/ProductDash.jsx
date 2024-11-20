@@ -193,9 +193,9 @@ const ProductDash = () => {
       render: (_, record) => (
         <Space size="middle">
           <Button style={{color:'white'}} icon={<EditOutlined />} onClick={() => handleEditProduct(record)}>Edit</Button>
-          <Popconfirm title="Are you sure to delete this product?" onConfirm={() => handleDeleteProduct(record.id)}>
-            <Button style={{color:'white'}} icon={<DeleteOutlined />} type="danger">Delete</Button>
-          </Popconfirm>
+
+            <Button style={{color:'white'}} icon={<DeleteOutlined />} onClick={() => handleDeleteProduct(record.id)} type="danger">Delete</Button>
+     
         </Space>
       ),
     },

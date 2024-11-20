@@ -236,5 +236,7 @@
   width: 30px;
   text-align: center;
 }
-
-
+.ant-popover {
+  max-width: 300px; /* Hoặc điều chỉnh tùy ý */
+  overflow-wrap: break-word;
+}
