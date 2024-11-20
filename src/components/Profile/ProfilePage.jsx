@@ -50,12 +50,13 @@ console.log(location.hash);   // In ra phần hash của URL
     const status =  searchQuery.get("status");
     const isCancelled = searchQuery.get("success");
     const amount =  searchQuery.get("amount");
+    const walletID = wallet.id;
     console.log(transactionId);
     console.log(status);
     console.log(isCancelled);
     console.log(amount);
     if (isCancelled == null) {
-      handleReturnTransaction( amount);
+      handleReturnTransaction( amount,walletID);
     }
   }, [location]);
 
@@ -172,12 +173,9 @@ console.log(location.hash);   // In ra phần hash của URL
     }
   };
 
-  const handleReturnTransaction = async ( amount) => {
+  const handleReturnTransaction = async ( amount,walletID) => {
     try {
-      if (!wallet) {
-        message.error("Không thể xác định thông tin ví.");
-        return;
-      }
+     
 
       if (isNaN(amount) || amount <= 0) {
         message.error("Số tiền nạp không hợp lệ.");
@@ -192,8 +190,8 @@ console.log(location.hash);   // In ra phần hash của URL
           return;
         }
 
-        const response = await api.put(`/Wallet/${wallet.id}`, {
-          id: wallet.id,
+        const response = await api.put(`/Wallet/${walletID}`, {
+          id: walletID,
           userId: wallet.userId,
           cash: updatedCash,
           walletType: wallet.walletType,
