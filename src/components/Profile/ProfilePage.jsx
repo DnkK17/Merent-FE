@@ -53,7 +53,7 @@ console.log(location.hash);   // In ra phần hash của URL
     console.log(status);
     console.log(isCancelled);
     console.log(amount);
-    if (isCancelled) {
+    if (isCancelled==null) {
       handleReturnTransaction( amount,wallet);
     }
   }, [location]);
@@ -125,49 +125,6 @@ console.log(location.hash);   // In ra phần hash của URL
     } catch (error) {
       console.error("Error during PayOS:", error);
       message.error("Lỗi khi kết nối máy chủ để tạo liên kết thanh toán.");
-    }
-  };
-
-  const handleDepositPayOS = async () => {
-    const amount = parseFloat(depositAmount);
-    if (isNaN(amount) || amount <= 0) {
-      message.error("Vui lòng nhập số tiền hợp lệ");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const walletResponse = await api.put(`/Wallet/${wallet.id}`, {
-        id: wallet.id,
-        userId: wallet.userId,
-        cash: wallet.cash + amount,
-        walletType: wallet.walletType,
-      });
-      
-
-      if (walletResponse.data.success) {
-        message.success("Số dư ví được cập nhật thành công!");
-        setWallet({ ...wallet, cash: wallet.cash + amount });
-
-        const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
-        setLoading(false);
-        setIsModalVisible(false);
-
-        if (data.success) {
-          message.success("Nạp tiền thành công");
-          window.location.href = data.data;
-        } else {
-          message.error(data.message || "Lỗi khi tạo liên kết nạp tiền");
-        }
-      } else {
-        throw new Error(walletResponse.data.message || "Lỗi khi cập nhật ví");
-      }
-    } catch (error) {
-      console.error("Error during deposit:", error);
-      message.error(error.message || "Lỗi kết nối máy chủ");
-    } finally {
-      setLoading(false);
     }
   };
 
