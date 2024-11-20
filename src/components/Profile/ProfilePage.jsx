@@ -140,6 +140,7 @@ export default function ProfilePage() {
         cash: wallet.cash + amount,
         walletType: wallet.walletType,
       });
+      
 
       if (walletResponse.data.success) {
         message.success("Số dư ví được cập nhật thành công!");
@@ -192,14 +193,14 @@ export default function ProfilePage() {
           cash: updatedCash,
           walletType: wallet.walletType,
         });
-
+        console.log(updatedCash);
         if (response.data.success) {
           setWallet({ ...wallet, cash: updatedCash });
           message.info("Số tiền đã bị trừ khỏi ví do giao dịch không hoàn tất.");
         } else {
           throw new Error(response.data.message || "Lỗi khi cập nhật ví.");
         }
-      } else if (status === "SUCCESS") {
+      } else if (status === "PAID") {
         message.success("Giao dịch thành công, số tiền nạp đã được giữ nguyên.");
       }
     } catch (error) {
