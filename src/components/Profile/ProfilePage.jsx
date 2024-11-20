@@ -32,7 +32,7 @@ export default function ProfilePage() {
       setUser(userData);
       setUserID(userData.id);
     }
-  }, [location]);
+  }, []);
 
   useEffect(() => {
     if (userID) {
@@ -41,6 +41,7 @@ export default function ProfilePage() {
   }, [userID]);
 
   useEffect(() => {
+    fetchWalletInfo();
     console.log(location.search); // In ra phần query string của URL
 console.log(location.hash);   // In ra phần hash của URL
 
