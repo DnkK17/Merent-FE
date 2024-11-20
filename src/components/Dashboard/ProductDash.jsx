@@ -193,7 +193,6 @@ const ProductDash = () => {
       render: (_, record) => (
         <Space size="middle">
           <Button style={{color:'white'}} icon={<EditOutlined />} onClick={() => handleEditProduct(record)}>Edit</Button>
-
             <Button style={{color:'white'}} icon={<DeleteOutlined />} onClick={() => handleDeleteProduct(record.id)} type="danger">Delete</Button>
      
         </Space>
