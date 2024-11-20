@@ -46,11 +46,12 @@ export default function ProfilePage() {
     const transactionId = query.get("id");
     const status = query.get("status");
     const isCancelled = query.get("cancel") === "true";
-
+  
     if (transactionId) {
       handleReturnTransaction(transactionId, isCancelled ? "Rejected" : status);
     }
   }, [location]);
+  
 
   // Fetch wallet information
   const fetchWalletInfo = async () => {
@@ -136,7 +137,53 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
-
+  const handleReturnTransaction = async (transactionId, status) => {
+    try {
+      if (!wallet) {
+        message.error("Không thể xác định thông tin ví.");
+        return;
+      }
+  
+      const query = new URLSearchParams(location.search);
+      const amount = parseFloat(query.get("amount"));
+  
+      if (isNaN(amount) || amount <= 0) {
+        message.error("Số tiền nạp không hợp lệ.");
+        return;
+      }
+  
+      if (status === "CANCELLED" || status === "Rejected") {
+        // Giao dịch bị hủy hoặc người dùng quay lại mà không thanh toán
+        const updatedCash = wallet.cash - amount;
+  
+        if (updatedCash < 0) {
+          message.error("Số dư không đủ để trừ.");
+          return;
+        }
+  
+        const response = await api.put(`/Wallet/${wallet.id}`, {
+          id: wallet.id,
+          userId: wallet.userId,
+          cash: updatedCash,
+          walletType: wallet.walletType,
+        });
+  
+        if (response.data.success) {
+          setWallet({ ...wallet, cash: updatedCash });
+          message.info("Số tiền đã bị trừ khỏi ví do giao dịch không hoàn tất.");
+        } else {
+          throw new Error(response.data.message || "Lỗi khi cập nhật ví.");
+        }
+      } else if (status === "SUCCESS") {
+        // Giữ nguyên số tiền khi giao dịch thành công
+        message.success("Giao dịch thành công, số tiền nạp đã được giữ nguyên.");
+      }
+    } catch (error) {
+      console.error("Error handling transaction return:", error);
+      message.error("Lỗi trong quá trình xử lý giao dịch.");
+    }
+  };
+  
   // Modal handlers
   const showModal = () => setIsModalVisible(true);
   const handleCancel = () => setIsModalVisible(false);
