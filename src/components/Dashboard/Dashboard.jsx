@@ -15,8 +15,6 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
   const ordersPerPage = 5; // Số đơn hàng hiển thị mỗi trang
-
-  // Gọi API để lấy dữ liệu đơn hàng
   useEffect(() => {
     axios
       .get("https://merent.uydev.id.vn/api/ProductOrder")

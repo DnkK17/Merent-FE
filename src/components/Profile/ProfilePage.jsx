@@ -40,28 +40,28 @@ export default function ProfilePage() {
     }
   }, [userID]);
 
-  useEffect(() => {
-    const searchQuery = new URLSearchParams(location.search);
-    const success = searchQuery.get("success");
-    const canceled = searchQuery.get("canceled");
-    const transactionId = searchQuery.get("transactionId");
-    const amount = parseFloat(searchQuery.get("amount"));
+  // useEffect(() => {
+  //   const searchQuery = new URLSearchParams(location.search);
+  //   const success = searchQuery.get("success");
+  //   const canceled = searchQuery.get("canceled");
+  //   const transactionId = searchQuery.get("transactionId");
+  //   const amount = parseFloat(searchQuery.get("amount"));
   
-    // Kiểm tra nếu transactionId đã có và giao dịch chưa xử lý
+  //   // Kiểm tra nếu transactionId đã có và giao dịch chưa xử lý
    
-      if (success === "true" && wallet && !loading) {
-        // Xử lý giao dịch thành công
-        setLoading(true);
-        handleReturnTransaction(amount, wallet, "success")
-          .finally(() => setLoading(false));
-      } else if (canceled === "true" && wallet && !loading) {
-        // Xử lý giao dịch bị hủy
-        setLoading(true);
-        handleReturnTransaction(amount, wallet, "canceled")
-          .finally(() => setLoading(false));
-      }
+  //     if (success === "true" && wallet && !loading) {
+  //       // Xử lý giao dịch thành công
+  //       setLoading(true);
+  //       handleReturnTransaction(amount, wallet, "success")
+  //         .finally(() => setLoading(false));
+  //     } else if (canceled === "true" && wallet && !loading) {
+  //       // Xử lý giao dịch bị hủy
+  //       setLoading(true);
+  //       handleReturnTransaction(amount, wallet, "canceled")
+  //         .finally(() => setLoading(false));
+  //     }
     
-  }, [location.search, wallet]);
+  // }, [location.search, wallet]);
   
 
   const fetchWalletInfo = async () => {
@@ -110,23 +110,15 @@ export default function ProfilePage() {
     }
 
     try {
-      const walletResponse = await api.put(`/Wallet/${wallet.id}`, {
-        id: wallet.id,
-        userId: wallet.userId,
-        cash: wallet.cash + amount,
-        walletType: wallet.walletType,
-      });
+      
 
-      if (walletResponse.data.success) {
-        message.success("Số dư ví được cập nhật thành công!");
-        setWallet({ ...wallet, cash: wallet.cash + amount });
+     
 
         const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
         message.success("Liên kết thanh toán được tạo thành công");
         window.location.href = data.data;
-      } else {
-        message.error(walletResponse.data.message || "Lỗi khi tạo liên kết thanh toán");
-      }
+      
+      
     } catch (error) {
       console.error("Error during PayOS:", error);
       message.error("Lỗi khi kết nối máy chủ để tạo liên kết thanh toán.");
