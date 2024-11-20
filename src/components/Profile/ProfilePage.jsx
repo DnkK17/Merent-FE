@@ -46,7 +46,6 @@ export default function ProfilePage() {
     ? new URLSearchParams(location.hash.split("?")[1])
     : new URLSearchParams();
     console.log(searchQuery);
-    console.log(hashQuery);
     const transactionId = hashParams.get("transactionId") || searchQuery.get("id");
     const status = hashParams.get("status") || searchQuery.get("status");
     const isCancelled =
