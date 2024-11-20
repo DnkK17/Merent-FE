@@ -14,7 +14,6 @@ export default function ProfilePage() {
   const [orders, setOrders] = useState([]);
   const [depositAmount, setDepositAmount] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,9 +22,6 @@ export default function ProfilePage() {
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
 
   useEffect(() => {
-    fetchWalletInfo();
-    fetchTransactions();
-
     const storedUser = localStorage.getItem("userInfo");
     if (storedUser) {
       const userData = JSON.parse(storedUser);
@@ -36,26 +32,15 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (userID) {
+      fetchWalletInfo();
+      fetchTransactions();
       fetchOrders(userID);
     }
   }, [userID]);
 
   useEffect(() => {
-    
-  
-    const searchQuery = new URLSearchParams(location.search);
-    const transactionId = searchQuery.get("id");
-    const status = searchQuery.get("status");
-    const isCancelled = searchQuery.get("success");
-    const amount = searchQuery.get("amount");
-  
-    console.log(transactionId, status, isCancelled, amount);
-  
-    if (isCancelled == null && wallet) { // Đảm bảo wallet không null
-      handleReturnTransaction(amount);
-    }
-  }, [location, wallet]); // Thêm `wallet` vào dependency
-  
+    handlePaymentReturn();
+  }, [location]);
 
   const fetchWalletInfo = async () => {
     try {
@@ -63,10 +48,10 @@ export default function ProfilePage() {
       if (data.success && data.data.length > 0) {
         setWallet(data.data[0]);
       } else {
-        message.error(data.message || "Lỗi khi lấy thông tin ví");
+        message.error(data.message || "Failed to fetch wallet information");
       }
     } catch (error) {
-      message.info("Vui lòng đăng nhập để truy cập thông tin ví.");
+      message.info("Please log in to access wallet information.");
     }
   };
 
@@ -76,10 +61,10 @@ export default function ProfilePage() {
       if (data.success && data.data) {
         setTransactions(data.data);
       } else {
-        message.error(data.message || "Lỗi khi lấy lịch sử giao dịch");
+        message.error(data.message || "Failed to fetch transaction history");
       }
     } catch (error) {
-      message.info("Vui lòng đăng nhập để truy cập thông tin giao dịch.");
+      message.info("Please log in to access transactions.");
     }
   };
 
@@ -95,123 +80,78 @@ export default function ProfilePage() {
     }
   };
 
-  const handlePayOS = async () => {
-    const amount = parseFloat(depositAmount);
-    if (isNaN(amount) || amount <= 0) {
-      message.error("Vui lòng nhập số tiền hợp lệ");
-      return;
-    }
+  const handlePaymentReturn = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const transactionId = searchParams.get("id");
+    const status = searchParams.get("status");
+    const isCancelled = searchParams.get("success");
+    const amount = parseFloat(searchParams.get("amount"));
 
-    try {
-      const walletResponse = await api.put(`/Wallet/${wallet.id}`, {
-        id: wallet.id,
-        userId: wallet.userId,
-        cash: wallet.cash + amount,
-        walletType: wallet.walletType,
-      });
-
-      if (walletResponse.data.success) {
-        message.success("Số dư ví được cập nhật thành công!");
-        setWallet({ ...wallet, cash: wallet.cash + amount });
-
-      const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
-     
-        message.success("Liên kết thanh toán được tạo thành công");
-        window.location.href = data.data;
-      } else {
-        message.error(data.message || "Lỗi khi tạo liên kết thanh toán");
-      }
-    } catch (error) {
-      console.error("Error during PayOS:", error);
-      message.error("Lỗi khi kết nối máy chủ để tạo liên kết thanh toán.");
+    if (!isCancelled && amount) {
+      processReturnTransaction(amount);
     }
   };
 
-  const handleDepositPayOS = async () => {
-    const amount = parseFloat(depositAmount);
-    if (isNaN(amount) || amount <= 0) {
-      message.error("Vui lòng nhập số tiền hợp lệ");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const walletResponse = await api.put(`/Wallet/${wallet.id}`, {
-        id: wallet.id,
-        userId: wallet.userId,
-        cash: wallet.cash + amount,
-        walletType: wallet.walletType,
-      });
-      
-
-      if (walletResponse.data.success) {
-        message.success("Số dư ví được cập nhật thành công!");
-        setWallet({ ...wallet, cash: wallet.cash + amount });
-
-        const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
-        setLoading(false);
-        setIsModalVisible(false);
-
-        if (data.success) {
-          message.success("Nạp tiền thành công");
-          window.location.href = data.data;
-        } else {
-          message.error(data.message || "Lỗi khi tạo liên kết nạp tiền");
-        }
-      } else {
-        throw new Error(walletResponse.data.message || "Lỗi khi cập nhật ví");
-      }
-    } catch (error) {
-      console.error("Error during deposit:", error);
-      message.error(error.message || "Lỗi kết nối máy chủ");
-    } finally {
-      setLoading(false);
-    }
-  };  
-
-  const handleReturnTransaction = async ( amount) => {
+  const processReturnTransaction = async (amount) => {
     try {
       if (!wallet) {
-        message.error("Không thể xác định thông tin ví.");
+        message.error("Cannot determine wallet information.");
         return;
       }
 
       if (isNaN(amount) || amount <= 0) {
-        message.error("Số tiền nạp không hợp lệ.");
+        message.error("Invalid deposit amount.");
         return;
       }
 
-      
-        const updatedCash = wallet.cash - amount;
+      const updatedCash = wallet.cash - amount;
+      if (updatedCash < 0) {
+        message.error("Insufficient balance.");
+        return;
+      }
 
-        if (updatedCash < 0) {
-          message.error("Số dư không đủ để trừ.");
-          return;
-        }
+      const response = await api.put(`/Wallet/${wallet.id}`, {
+        id: wallet.id,
+        userId: wallet.userId,
+        cash: updatedCash,
+        walletType: wallet.walletType,
+      });
 
-        const response = await api.put(`/Wallet/${wallet.id}`, {
-          id: wallet.id,
-          userId: wallet.userId,
-          cash: updatedCash,
-          walletType: wallet.walletType,
-        });
-        console.log(updatedCash);
-        if (response.data.success) {
-          setWallet({ ...wallet, cash: updatedCash });
-          message.info("Số tiền đã bị trừ khỏi ví do giao dịch không hoàn tất.");
-        } else {
-          throw new Error(response.data.message || "Lỗi khi cập nhật ví.");
-        }
-     
+      if (response.data.success) {
+        setWallet({ ...wallet, cash: updatedCash });
+        message.info("Amount deducted from wallet due to incomplete transaction.");
+      } else {
+        throw new Error(response.data.message || "Error updating wallet.");
+      }
     } catch (error) {
-      console.error("Error handling transaction return:", error);
-      message.error("Lỗi trong quá trình xử lý giao dịch.");
+      console.error("Error processing return transaction:", error);
+      message.error("Error handling transaction.");
     }
   };
 
-  const showModal = () => setIsModalVisible(true);
-  const handleCancel = () => setIsModalVisible(false);
+  const handleDeposit = async () => {
+    const amount = parseFloat(depositAmount);
+    if (isNaN(amount) || amount <= 0) {
+      message.error("Please enter a valid amount.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
+      if (data.success) {
+        message.success("Deposit link created successfully.");
+        window.location.href = data.data;
+      } else {
+        message.error(data.message || "Failed to create deposit link.");
+      }
+    } catch (error) {
+      console.error("Error during deposit:", error);
+      message.error("Error connecting to the server.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const transactionColumns = [
     { title: "ID", dataIndex: "id", key: "id" },
@@ -249,64 +189,49 @@ export default function ProfilePage() {
         <>
           <Title level={3}>My Information</Title>
           <div className="bg-white p-6 rounded-lg shadow-md flex flex-col md:flex-row gap-6">
-            <div className="flex-1">
-              <Descriptions title="User Info" bordered column={1}>
-                <Descriptions.Item label="Name">{user.name}</Descriptions.Item>
-                <Descriptions.Item label="Email">{user.email}</Descriptions.Item>
-                <Descriptions.Item label="Phone Number">{user.phoneNumber}</Descriptions.Item>
-                <Descriptions.Item label="Gender">{user.gender}</Descriptions.Item>
-                <Descriptions.Item label="Status">
-                  <Badge status="processing" text="Active" />
-                </Descriptions.Item>
-              </Descriptions>
-            </div>
-            <div className="flex-1">
-              <Descriptions title="Wallet Info" bordered column={1}>
-                <Descriptions.Item label="Wallet ID">{wallet.id}</Descriptions.Item>
-                <Descriptions.Item label="Cash">{formatPriceVND(wallet.cash)}</Descriptions.Item>
-              </Descriptions>
-              <div className="mt-4">
-                <Input
-                  type="number"
-                  placeholder="Enter deposit amount"
-                  value={depositAmount}
-                  onChange={(e) => setDepositAmount(e.target.value)}
-                />
-                <Button
-                  type="primary"
-                  className="mt-2 w-full"
-                  onClick={handlePayOS}
-                  loading={loading}
-                >
-                  Deposit
-                </Button>
-              </div>
-            </div>
+            <Descriptions title="User Info" bordered column={1}>
+              <Descriptions.Item label="Name">{user.name}</Descriptions.Item>
+              <Descriptions.Item label="Email">{user.email}</Descriptions.Item>
+              <Descriptions.Item label="Phone Number">{user.phoneNumber}</Descriptions.Item>
+              <Descriptions.Item label="Gender">{user.gender}</Descriptions.Item>
+              <Descriptions.Item label="Status">
+                <Badge status="processing" text="Active" />
+              </Descriptions.Item>
+            </Descriptions>
+            <Descriptions title="Wallet Info" bordered column={1}>
+              <Descriptions.Item label="Wallet ID">{wallet.id}</Descriptions.Item>
+              <Descriptions.Item label="Cash">{formatPriceVND(wallet.cash)}</Descriptions.Item>
+            </Descriptions>
+            <Input
+              type="number"
+              placeholder="Enter deposit amount"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+            />
+            <Button type="primary" onClick={handleDeposit} loading={loading}>
+              Deposit
+            </Button>
           </div>
         </>
       )}
 
       <Title level={3}>Transaction History</Title>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <Table
-          columns={transactionColumns}
-          dataSource={transactions}
-          rowKey="id"
-          bordered
-          pagination={{ pageSize: 5 }}
-        />
-      </div>
+      <Table
+        columns={transactionColumns}
+        dataSource={transactions}
+        rowKey="id"
+        bordered
+        pagination={{ pageSize: 5 }}
+      />
 
       <Title level={3}>My Orders</Title>
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <Table
-          columns={orderColumns}
-          dataSource={orders}
-          rowKey="id"
-          bordered
-          pagination={{ pageSize: 5 }}
-        />
-      </div>
+      <Table
+        columns={orderColumns}
+        dataSource={orders}
+        rowKey="id"
+        bordered
+        pagination={{ pageSize: 5 }}
+      />
     </div>
   );
 }
