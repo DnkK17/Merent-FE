@@ -52,9 +52,10 @@ export default function ProfilePage() {
     hashParams.get("cancel") === "true" || searchQuery.get("cancel") === "true";
     const amount = parseFloat(hashParams.get("amount") || searchQuery.get("amount"));
     console.log(transactionId);
+    console.log(status);
     
     if (transactionId) {
-      handleReturnTransaction(transactionId, isCancelled ? "xCANCELLED" : status, amount);
+      handleReturnTransaction(transactionId, isCancelled ? "CANCELLED" : status, amount);
     }
   }, [location]);
 
