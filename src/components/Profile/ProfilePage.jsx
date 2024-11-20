@@ -41,18 +41,28 @@ export default function ProfilePage() {
   }, [userID]);
 
   useEffect(() => {
-    // Chỉ chạy khi có đầy đủ thông tin từ URL và wallet đã được tải
     const searchQuery = new URLSearchParams(location.search);
-    const transactionId = searchQuery.get("id");
-    const status = searchQuery.get("status");
-    const isCancelled = searchQuery.get("success");
+    const success = searchQuery.get("success");
+    const canceled = searchQuery.get("canceled");
+    const transactionId = searchQuery.get("transactionId");
     const amount = parseFloat(searchQuery.get("amount"));
   
-    if (isCancelled == null && wallet && !loading) {
-      setLoading(true); // Ngăn việc chạy nhiều lần
-      handleReturnTransaction(amount, wallet).finally(() => setLoading(false));
+    // Kiểm tra nếu transactionId đã có và giao dịch chưa xử lý
+    if (transactionId && !sessionStorage.getItem(`processed-${transactionId}`)) {
+      if (success === "true" && wallet && !loading) {
+        // Xử lý giao dịch thành công
+        setLoading(true);
+        handleReturnTransaction(amount, wallet, "success")
+          .finally(() => setLoading(false));
+      } else if (canceled === "true" && wallet && !loading) {
+        // Xử lý giao dịch bị hủy
+        setLoading(true);
+        handleReturnTransaction(amount, wallet, "canceled")
+          .finally(() => setLoading(false));
+      }
     }
-  }, [location.search, wallet]); // Chỉ chạy lại khi `location.search` hoặc `wallet` thay đổi
+  }, [location.search, wallet]);
+  
 
   const fetchWalletInfo = async () => {
     try {
@@ -125,7 +135,7 @@ export default function ProfilePage() {
   };
 
 
-  const handleReturnTransaction = async (amount, wallet) => {
+  const handleReturnTransaction = async (amount, wallet, type) => {
     try {
       if (!wallet) {
         message.error("Không thể xác định thông tin ví.");
@@ -137,31 +147,48 @@ export default function ProfilePage() {
         return;
       }
   
+      // Tránh trừ tiền nhiều lần
       const updatedCash = wallet.cash - amount;
   
-      if (updatedCash < 0) {
+      if (updatedCash < 0 && type === "canceled") {
         message.error("Số dư không đủ để trừ.");
         return;
       }
   
-      const response = await api.put(`/Wallet/${wallet.id}`, {
-        id: wallet.id,
-        userId: wallet.userId,
-        cash: updatedCash,
-        walletType: wallet.walletType,
-      });
-  
-      if (response.data.success) {
-        setWallet({ ...wallet, cash: updatedCash });
-        message.info("Số tiền đã bị trừ khỏi ví do giao dịch không hoàn tất.");
-      } else {
-        throw new Error(response.data.message || "Lỗi khi cập nhật ví.");
+      let response;
+      if (type === "success") {
+        // Xử lý khi giao dịch thành công, có thể là việc cập nhật ví
+        response = await api.put(`/Wallet/${wallet.id}`, {
+          id: wallet.id,
+          userId: wallet.userId,
+          cash: updatedCash,
+          walletType: wallet.walletType,
+        });
+        if (response.data.success) {
+          setWallet({ ...wallet, cash: updatedCash });
+          message.success("Giao dịch thành công.");
+        }
+      } else if (type === "canceled") {
+        // Xử lý khi giao dịch bị hủy
+        response = await api.put(`/Wallet/${wallet.id}`, {
+          id: wallet.id,
+          userId: wallet.userId,
+          cash: wallet.cash, // Không thay đổi số dư ví nếu giao dịch bị hủy
+          walletType: wallet.walletType,
+        });
+        if (response.data.success) {
+          message.info("Giao dịch đã bị hủy.");
+        }
       }
+  
+      // Đánh dấu giao dịch đã xử lý để tránh trừ tiền nhiều lần
+      sessionStorage.setItem(`processed-${transactionId}`, "true");
     } catch (error) {
-      console.error("Error handling transaction return:", error);
+      console.error("Error handling transaction:", error);
       message.error("Lỗi trong quá trình xử lý giao dịch.");
     }
   };
+  
 
   const showModal = () => setIsModalVisible(true);
   const handleCancel = () => setIsModalVisible(false);
