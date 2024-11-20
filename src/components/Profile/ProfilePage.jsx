@@ -154,7 +154,7 @@ export default function ProfilePage() {
       }
   
       let response;
-      if (type === "success") {
+      if (type === "canceled") {
         // Xử lý khi giao dịch thành công, có thể là việc cập nhật ví
         response = await api.put(`/Wallet/${wallet.id}`, {
           id: wallet.id,
@@ -166,7 +166,7 @@ export default function ProfilePage() {
           setWallet({ ...wallet, cash: updatedCash });
           message.success("Giao dịch thành công.");
         }
-      } else if (type === "canceled") {
+      } else if (type === "success") {
         // Xử lý khi giao dịch bị hủy
         response = await api.put(`/Wallet/${wallet.id}`, {
           id: wallet.id,
