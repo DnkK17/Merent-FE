@@ -46,23 +46,30 @@ export default function ProfilePage() {
     const canceled = searchQuery.get("canceled");
     const transactionId = searchQuery.get("transactionId");
     const amount = parseFloat(searchQuery.get("amount"));
+    const cancel = searchQuery.get("cancel");
+    const status = searchQuery.get("status");
+    const orderCode = searchQuery.get("orderCode");
   
     // Kiểm tra nếu transactionId đã có và giao dịch chưa xử lý
     if (transactionId && !sessionStorage.getItem(`processed-${transactionId}`)) {
       if (success === "true" && wallet && !loading) {
         // Xử lý giao dịch thành công
         setLoading(true);
-        handleReturnTransaction(amount, wallet, "success")
+        handleReturnTransaction(amount, wallet, "success", transactionId)
           .finally(() => setLoading(false));
       } else if (canceled === "true" && wallet && !loading) {
         // Xử lý giao dịch bị hủy
         setLoading(true);
-        handleReturnTransaction(amount, wallet, "canceled")
+        handleReturnTransaction(amount, wallet, "canceled", transactionId)
+          .finally(() => setLoading(false));
+      } else if (cancel === "true" && status === "CANCELLED" && orderCode) {
+        // Xử lý khi giao dịch bị hủy
+        setLoading(true);
+        handleReturnTransaction(amount, wallet, "canceled", transactionId)
           .finally(() => setLoading(false));
       }
     }
   }, [location.search, wallet]);
-  
 
   const fetchWalletInfo = async () => {
     try {
@@ -121,8 +128,7 @@ export default function ProfilePage() {
         message.success("Số dư ví được cập nhật thành công!");
         setWallet({ ...wallet, cash: wallet.cash + amount });
 
-      const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
-     
+        const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
         message.success("Liên kết thanh toán được tạo thành công");
         window.location.href = data.data;
       } else {
@@ -134,8 +140,7 @@ export default function ProfilePage() {
     }
   };
 
-
-  const handleReturnTransaction = async (amount, wallet, type) => {
+  const handleReturnTransaction = async (amount, wallet, type, transactionId) => {
     try {
       if (!wallet) {
         message.error("Không thể xác định thông tin ví.");
@@ -157,7 +162,7 @@ export default function ProfilePage() {
   
       let response;
       if (type === "success") {
-        // Xử lý khi giao dịch thành công, có thể là việc cập nhật ví
+        // Xử lý khi giao dịch thành công
         response = await api.put(`/Wallet/${wallet.id}`, {
           id: wallet.id,
           userId: wallet.userId,
@@ -188,7 +193,6 @@ export default function ProfilePage() {
       message.error("Lỗi trong quá trình xử lý giao dịch.");
     }
   };
-  
 
   const showModal = () => setIsModalVisible(true);
   const handleCancel = () => setIsModalVisible(false);
