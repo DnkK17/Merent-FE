@@ -48,7 +48,8 @@ export default function ProfilePage() {
     const status = hashQuery.get("status") || searchQuery.get("status");
     const isCancelled = hashQuery.get("cancel") === "true" || searchQuery.get("cancel") === "true";
     const amount = parseFloat(hashQuery.get("amount") || searchQuery.get("amount"));
-
+    console.log(transactionId);
+    
     if (transactionId) {
       handleReturnTransaction(transactionId, isCancelled ? "CANCELLED" : status, amount);
     }
