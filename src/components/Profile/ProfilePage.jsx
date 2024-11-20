@@ -43,7 +43,8 @@ export default function ProfilePage() {
   useEffect(() => {
     const searchQuery = new URLSearchParams(location.search);
     const hashQuery = new URLSearchParams(location.hash.split("?")[1]);
-
+    console.log(searchQuery);
+    console.log(hashQuery);
     const transactionId = hashQuery.get("transactionId") || searchQuery.get("id");
     const status = hashQuery.get("status") || searchQuery.get("status");
     const isCancelled = hashQuery.get("cancel") === "true" || searchQuery.get("cancel") === "true";
@@ -51,7 +52,7 @@ export default function ProfilePage() {
     console.log(transactionId);
     
     if (transactionId) {
-      handleReturnTransaction(transactionId, isCancelled ? "CANCELLED" : status, amount);
+      handleReturnTransaction(transactionId, isCancelled ? "xCANCELLED" : status, amount);
     }
   }, [location]);
 
