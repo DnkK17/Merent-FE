@@ -41,22 +41,18 @@ export default function ProfilePage() {
   }, [userID]);
 
   useEffect(() => {
-    console.log(location.search); // In ra phần query string của URL
-console.log(location.hash);   // In ra phần hash của URL
-    const searchString = location.search;
+    // Chỉ chạy khi có đầy đủ thông tin từ URL và wallet đã được tải
     const searchQuery = new URLSearchParams(location.search);
-    const transactionId =  searchQuery.get("id");
-    const status =  searchQuery.get("status");
+    const transactionId = searchQuery.get("id");
+    const status = searchQuery.get("status");
     const isCancelled = searchQuery.get("success");
-    const amount =  searchQuery.get("amount");
-    console.log(transactionId);
-    console.log(status);
-    console.log(isCancelled);
-    console.log(amount);
-    if (isCancelled==null) {
-      handleReturnTransaction( amount,wallet);
+    const amount = parseFloat(searchQuery.get("amount"));
+  
+    if (isCancelled == null && wallet && !loading) {
+      setLoading(true); // Ngăn việc chạy nhiều lần
+      handleReturnTransaction(amount, wallet).finally(() => setLoading(false));
     }
-  }, [location,wallet]);
+  }, [location.search, wallet]); // Chỉ chạy lại khi `location.search` hoặc `wallet` thay đổi
 
   const fetchWalletInfo = async () => {
     try {
@@ -128,40 +124,39 @@ console.log(location.hash);   // In ra phần hash của URL
     }
   };
 
-  const handleReturnTransaction = async ( amount,wallet) => {
+
+  const handleReturnTransaction = async (amount, wallet) => {
     try {
       if (!wallet) {
         message.error("Không thể xác định thông tin ví.");
         return;
       }
-
+  
       if (isNaN(amount) || amount <= 0) {
         message.error("Số tiền nạp không hợp lệ.");
         return;
       }
-
-      
-        const updatedCash = wallet.cash - amount;
-
-        if (updatedCash < 0) {
-          message.error("Số dư không đủ để trừ.");
-          return;
-        }
-
-        const response = await api.put(`/Wallet/${wallet.id}`, {
-          id: wallet.id,
-          userId: wallet.userId,
-          cash: updatedCash,
-          walletType: wallet.walletType,
-        });
-        console.log(updatedCash);
-        if (response.data.success) {
-          setWallet({ ...wallet, cash: updatedCash });
-          message.info("Số tiền đã bị trừ khỏi ví do giao dịch không hoàn tất.");
-        } else {
-          throw new Error(response.data.message || "Lỗi khi cập nhật ví.");
-        }
-     
+  
+      const updatedCash = wallet.cash - amount;
+  
+      if (updatedCash < 0) {
+        message.error("Số dư không đủ để trừ.");
+        return;
+      }
+  
+      const response = await api.put(`/Wallet/${wallet.id}`, {
+        id: wallet.id,
+        userId: wallet.userId,
+        cash: updatedCash,
+        walletType: wallet.walletType,
+      });
+  
+      if (response.data.success) {
+        setWallet({ ...wallet, cash: updatedCash });
+        message.info("Số tiền đã bị trừ khỏi ví do giao dịch không hoàn tất.");
+      } else {
+        throw new Error(response.data.message || "Lỗi khi cập nhật ví.");
+      }
     } catch (error) {
       console.error("Error handling transaction return:", error);
       message.error("Lỗi trong quá trình xử lý giao dịch.");
