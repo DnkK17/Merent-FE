@@ -41,6 +41,9 @@ export default function ProfilePage() {
   }, [userID]);
 
   useEffect(() => {
+    console.log(location.search); // In ra phần query string của URL
+console.log(location.hash);   // In ra phần hash của URL
+
     const searchQuery = new URLSearchParams(location.search);
     const hashParams = location.hash.includes("?")
     ? new URLSearchParams(location.hash.split("?")[1])
