@@ -92,6 +92,27 @@ export default function ProfilePage() {
     }
   };
 
+  const handlePayOS = async () => {
+    const amount = parseFloat(depositAmount);
+    if (isNaN(amount) || amount <= 0) {
+      message.error("Vui lòng nhập số tiền hợp lệ");
+      return;
+    }
+
+    try {
+      const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
+      if (data.success) {
+        message.success("Liên kết thanh toán được tạo thành công");
+        window.location.href = data.data;
+      } else {
+        message.error(data.message || "Lỗi khi tạo liên kết thanh toán");
+      }
+    } catch (error) {
+      console.error("Error during PayOS:", error);
+      message.error("Lỗi khi kết nối máy chủ để tạo liên kết thanh toán.");
+    }
+  };
+
   const handleDepositPayOS = async () => {
     const amount = parseFloat(depositAmount);
     if (isNaN(amount) || amount <= 0) {
@@ -226,20 +247,33 @@ export default function ProfilePage() {
                 </Descriptions.Item>
               </Descriptions>
             </div>
-            <div className="flex-1 flex flex-col mt-4 items-center justify-center">
-              <div className="flex items-center justify-center gap-5 flex-col">
-                <h2 className="text-black text-2xl font-bold">
-                  Current Balance: {formatPriceVND(wallet.cash)}
-                </h2>
+            <div className="flex-1">
+              <Descriptions title="Wallet Info" bordered column={1}>
+                <Descriptions.Item label="Wallet ID">{wallet.id}</Descriptions.Item>
+                <Descriptions.Item label="Cash">{formatPriceVND(wallet.cash)}</Descriptions.Item>
+              </Descriptions>
+              <div className="mt-4">
+                <Input
+                  type="number"
+                  placeholder="Enter deposit amount"
+                  value={depositAmount}
+                  onChange={(e) => setDepositAmount(e.target.value)}
+                />
+                <Button
+                  type="primary"
+                  className="mt-2 w-full"
+                  onClick={handlePayOS}
+                  loading={loading}
+                >
+                  Deposit
+                </Button>
               </div>
-              <Button type="primary" onClick={showModal} className="mt-4 w-full md:w-auto">
-                Deposit PayOS
-              </Button>
             </div>
           </div>
         </>
       )}
-      <Title level={3}>My Transactions</Title>
+
+      <Title level={3}>Transaction History</Title>
       <div className="bg-white p-6 rounded-lg shadow-md">
         <Table
           columns={transactionColumns}
@@ -249,6 +283,7 @@ export default function ProfilePage() {
           pagination={{ pageSize: 5 }}
         />
       </div>
+
       <Title level={3}>My Orders</Title>
       <div className="bg-white p-6 rounded-lg shadow-md">
         <Table
