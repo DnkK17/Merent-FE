@@ -52,13 +52,13 @@ console.log(location.hash);   // In ra phần hash của URL
     const transactionId = hashParams.get("transactionId") || searchQuery.get("id");
     const status = hashParams.get("status") || searchQuery.get("status");
     const isCancelled =
-    hashParams.get("cancel") === "true" || searchQuery.get("cancel") === "true";
+    hashParams.get("cancel")|| searchQuery.get("canceled") || searchQuery.get("success");
     const amount = parseFloat(hashParams.get("amount") || searchQuery.get("amount"));
     console.log(transactionId);
     console.log(status);
     
-    if (transactionId) {
-      handleReturnTransaction(transactionId, isCancelled ? "CANCELLED" : status, amount);
+    if (isCancelled != 'success') {
+      handleReturnTransaction( amount);
     }
   }, [location]);
 
@@ -175,7 +175,7 @@ console.log(location.hash);   // In ra phần hash của URL
     }
   };
 
-  const handleReturnTransaction = async (transactionId, status, amount) => {
+  const handleReturnTransaction = async ( amount) => {
     try {
       if (!wallet) {
         message.error("Không thể xác định thông tin ví.");
@@ -187,7 +187,7 @@ console.log(location.hash);   // In ra phần hash của URL
         return;
       }
 
-      if (status === "CANCELLED") {
+      
         const updatedCash = wallet.cash - amount;
 
         if (updatedCash < 0) {
@@ -208,9 +208,7 @@ console.log(location.hash);   // In ra phần hash của URL
         } else {
           throw new Error(response.data.message || "Lỗi khi cập nhật ví.");
         }
-      } else if (status === "PAID") {
-        message.success("Giao dịch thành công, số tiền nạp đã được giữ nguyên.");
-      }
+     
     } catch (error) {
       console.error("Error handling transaction return:", error);
       message.error("Lỗi trong quá trình xử lý giao dịch.");
