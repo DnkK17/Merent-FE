@@ -48,7 +48,7 @@ export default function ProfilePage() {
     const isCancelled = query.get("cancel") === "true";
   
     if (transactionId) {
-      handleReturnTransaction(transactionId, isCancelled ? "Rejected" : status);
+      handleReturnTransaction(transactionId, isCancelled ? "CANCELLED" : status);
     }
   }, [location]);
   
@@ -155,7 +155,7 @@ export default function ProfilePage() {
       if (status === "CANCELLED" || status === "Rejected") {
         // Giao dịch bị hủy hoặc người dùng quay lại mà không thanh toán
         const updatedCash = wallet.cash - amount;
-  
+        console.log(updatedCash)
         if (updatedCash < 0) {
           message.error("Số dư không đủ để trừ.");
           return;
