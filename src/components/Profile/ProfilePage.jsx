@@ -46,7 +46,7 @@ export default function ProfilePage() {
     const transactionId = query.get("id");
     const status = query.get("status");
     const isCancelled = query.get("cancel") === "true";
-  
+    console.log(status,isCancelled);
     if (transactionId) {
       handleReturnTransaction(transactionId, isCancelled ? "CANCELLED" : status);
     }
@@ -137,25 +137,35 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
-  const handleReturnTransaction = async (transactionId, status) => {
+  useEffect(() => {
+    const searchQuery = new URLSearchParams(location.search);
+    const hashQuery = new URLSearchParams(location.hash.split("?")[1]);
+  
+    const transactionId = hashQuery.get("transactionId") || searchQuery.get("id");
+    const status = hashQuery.get("status") || searchQuery.get("status");
+    const isCancelled = hashQuery.get("cancel") === "true" || searchQuery.get("cancel") === "true";
+    const amount = parseFloat(hashQuery.get("amount") || searchQuery.get("amount"));
+  
+    if (transactionId) {
+      handleReturnTransaction(transactionId, isCancelled ? "CANCELLED" : status, amount);
+    }
+  }, [location]);
+  
+  const handleReturnTransaction = async (transactionId, status, amount) => {
     try {
       if (!wallet) {
         message.error("Không thể xác định thông tin ví.");
         return;
       }
   
-      const query = new URLSearchParams(location.search);
-      const amount = parseFloat(query.get("amount"));
-  
       if (isNaN(amount) || amount <= 0) {
         message.error("Số tiền nạp không hợp lệ.");
         return;
       }
   
-      if (status === "CANCELLED" || status === "Rejected") {
-        // Giao dịch bị hủy hoặc người dùng quay lại mà không thanh toán
+      if (status === "CANCELLED") {
         const updatedCash = wallet.cash - amount;
-        console.log(updatedCash)
+  
         if (updatedCash < 0) {
           message.error("Số dư không đủ để trừ.");
           return;
@@ -175,7 +185,6 @@ export default function ProfilePage() {
           throw new Error(response.data.message || "Lỗi khi cập nhật ví.");
         }
       } else if (status === "SUCCESS") {
-        // Giữ nguyên số tiền khi giao dịch thành công
         message.success("Giao dịch thành công, số tiền nạp đã được giữ nguyên.");
       }
     } catch (error) {
@@ -183,6 +192,7 @@ export default function ProfilePage() {
       message.error("Lỗi trong quá trình xử lý giao dịch.");
     }
   };
+  
   
   // Modal handlers
   const showModal = () => setIsModalVisible(true);
