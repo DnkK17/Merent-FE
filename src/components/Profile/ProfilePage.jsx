@@ -51,13 +51,12 @@ console.log(location.hash);   // In ra phần hash của URL
     console.log(searchQuery);
     const transactionId = hashParams.get("transactionId") || searchQuery.get("id");
     const status = hashParams.get("status") || searchQuery.get("status");
-    const isCancelled =
-    hashParams.get("cancel")|| searchQuery.get("canceled") || searchQuery.get("success");
+    const isCancelled = searchQuery.get("success");
     const amount = parseFloat(hashParams.get("amount") || searchQuery.get("amount"));
     console.log(transactionId);
     console.log(status);
-    
-    if (isCancelled != 'success') {
+    console.log(isCancelled);
+    if (isCancelled == null) {
       handleReturnTransaction( amount);
     }
   }, [location]);
