@@ -23,7 +23,7 @@ export default function ProfilePage() {
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
 
   useEffect(() => {
-    fetchWalletInfo();
+
     fetchTransactions();
 
     const storedUser = localStorage.getItem("userInfo");
