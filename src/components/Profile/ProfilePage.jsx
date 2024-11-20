@@ -42,22 +42,20 @@ export default function ProfilePage() {
 
   useEffect(() => {
     fetchWalletInfo();
-    console.log(location.search); // In ra phần query string của URL
-console.log(location.hash);   // In ra phần hash của URL
-
+  
     const searchQuery = new URLSearchParams(location.search);
-    const transactionId =  searchQuery.get("id");
-    const status =  searchQuery.get("status");
+    const transactionId = searchQuery.get("id");
+    const status = searchQuery.get("status");
     const isCancelled = searchQuery.get("success");
-    const amount =  searchQuery.get("amount");
-    console.log(transactionId);
-    console.log(status);
-    console.log(isCancelled);
-    console.log(amount);
-    if (isCancelled == null) {
-      handleReturnTransaction( amount);
+    const amount = searchQuery.get("amount");
+  
+    console.log(transactionId, status, isCancelled, amount);
+  
+    if (isCancelled == null && wallet) { // Đảm bảo wallet không null
+      handleReturnTransaction(amount);
     }
-  }, [location]);
+  }, [location, wallet]); // Thêm `wallet` vào dependency
+  
 
   const fetchWalletInfo = async () => {
     try {
@@ -170,11 +168,14 @@ console.log(location.hash);   // In ra phần hash của URL
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const handleReturnTransaction = async ( amount) => {
     try {
-    
+      if (!wallet) {
+        message.error("Không thể xác định thông tin ví.");
+        return;
+      }
 
       if (isNaN(amount) || amount <= 0) {
         message.error("Số tiền nạp không hợp lệ.");
