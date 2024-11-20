@@ -100,8 +100,19 @@ export default function ProfilePage() {
     }
 
     try {
+      const walletResponse = await api.put(`/Wallet/${wallet.id}`, {
+        id: wallet.id,
+        userId: wallet.userId,
+        cash: wallet.cash + amount,
+        walletType: wallet.walletType,
+      });
+
+      if (walletResponse.data.success) {
+        message.success("Số dư ví được cập nhật thành công!");
+        setWallet({ ...wallet, cash: wallet.cash + amount });
+
       const { data } = await api.post("/Wallet/create-payment-link-payos", { amount });
-      if (data.success) {
+     
         message.success("Liên kết thanh toán được tạo thành công");
         window.location.href = data.data;
       } else {
