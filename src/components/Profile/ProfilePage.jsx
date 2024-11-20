@@ -22,7 +22,6 @@ export default function ProfilePage() {
   const formatPriceVND = (price) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
 
-  // Fetch initial data
   useEffect(() => {
     fetchWalletInfo();
     fetchTransactions();
@@ -42,18 +41,19 @@ export default function ProfilePage() {
   }, [userID]);
 
   useEffect(() => {
-    const query = new URLSearchParams(location.search);
-    const transactionId = query.get("id");
-    const status = query.get("status");
-    const isCancelled = query.get("cancel") === "true";
-    console.log(status,isCancelled);
+    const searchQuery = new URLSearchParams(location.search);
+    const hashQuery = new URLSearchParams(location.hash.split("?")[1]);
+
+    const transactionId = hashQuery.get("transactionId") || searchQuery.get("id");
+    const status = hashQuery.get("status") || searchQuery.get("status");
+    const isCancelled = hashQuery.get("cancel") === "true" || searchQuery.get("cancel") === "true";
+    const amount = parseFloat(hashQuery.get("amount") || searchQuery.get("amount"));
+
     if (transactionId) {
-      handleReturnTransaction(transactionId, isCancelled ? "CANCELLED" : status);
+      handleReturnTransaction(transactionId, isCancelled ? "CANCELLED" : status, amount);
     }
   }, [location]);
-  
 
-  // Fetch wallet information
   const fetchWalletInfo = async () => {
     try {
       const { data } = await api.get("/Wallet/user-wallet");
@@ -67,7 +67,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Fetch transaction history
   const fetchTransactions = async () => {
     try {
       const { data } = await api.get("/Transaction/transactions-user?walletTypeEnums=0");
@@ -81,7 +80,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Fetch user orders
   const fetchOrders = async (userID) => {
     try {
       const response = await axios.get(
@@ -94,7 +92,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Handle deposit via PayOS
   const handleDepositPayOS = async () => {
     const amount = parseFloat(depositAmount);
     if (isNaN(amount) || amount <= 0) {
@@ -110,7 +107,6 @@ export default function ProfilePage() {
         userId: wallet.userId,
         cash: wallet.cash + amount,
         walletType: wallet.walletType,
-        
       });
 
       if (walletResponse.data.success) {
@@ -137,47 +133,34 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    const searchQuery = new URLSearchParams(location.search);
-    const hashQuery = new URLSearchParams(location.hash.split("?")[1]);
-  
-    const transactionId = hashQuery.get("transactionId") || searchQuery.get("id");
-    const status = hashQuery.get("status") || searchQuery.get("status");
-    const isCancelled = hashQuery.get("cancel") === "true" || searchQuery.get("cancel") === "true";
-    const amount = parseFloat(hashQuery.get("amount") || searchQuery.get("amount"));
-  
-    if (transactionId) {
-      handleReturnTransaction(transactionId, isCancelled ? "CANCELLED" : status, amount);
-    }
-  }, [location]);
-  
+
   const handleReturnTransaction = async (transactionId, status, amount) => {
     try {
       if (!wallet) {
         message.error("Không thể xác định thông tin ví.");
         return;
       }
-  
+
       if (isNaN(amount) || amount <= 0) {
         message.error("Số tiền nạp không hợp lệ.");
         return;
       }
-  
+
       if (status === "CANCELLED") {
         const updatedCash = wallet.cash - amount;
-  
+
         if (updatedCash < 0) {
           message.error("Số dư không đủ để trừ.");
           return;
         }
-  
+
         const response = await api.put(`/Wallet/${wallet.id}`, {
           id: wallet.id,
           userId: wallet.userId,
           cash: updatedCash,
           walletType: wallet.walletType,
         });
-  
+
         if (response.data.success) {
           setWallet({ ...wallet, cash: updatedCash });
           message.info("Số tiền đã bị trừ khỏi ví do giao dịch không hoàn tất.");
@@ -192,13 +175,10 @@ export default function ProfilePage() {
       message.error("Lỗi trong quá trình xử lý giao dịch.");
     }
   };
-  
-  
-  // Modal handlers
+
   const showModal = () => setIsModalVisible(true);
   const handleCancel = () => setIsModalVisible(false);
 
-  // Table columns
   const transactionColumns = [
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "Description", dataIndex: "description", key: "description" },
@@ -265,6 +245,7 @@ export default function ProfilePage() {
           columns={transactionColumns}
           dataSource={transactions}
           rowKey="id"
+          bordered
           pagination={{ pageSize: 5 }}
         />
       </div>
@@ -274,40 +255,10 @@ export default function ProfilePage() {
           columns={orderColumns}
           dataSource={orders}
           rowKey="id"
+          bordered
           pagination={{ pageSize: 5 }}
         />
       </div>
-      {isModalVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
-            <h2 className="text-xl font-bold mb-4 text-black">Enter Deposit Amount</h2>
-            <Input
-              type="number"
-              placeholder="Enter amount"
-              value={depositAmount}
-              onChange={(e) => setDepositAmount(e.target.value)}
-              className="mb-4 w-full px-3 py-2 border rounded-md"
-            />
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={handleCancel}
-                className="px-4 py-2 bg-gray-200 rounded-md text-gray-700 hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDepositPayOS}
-                className={`px-4 py-2 text-white rounded-md ${
-                  loading ? "bg-blue-300" : "bg-blue-600 hover:bg-blue-700"
-                }`}
-                disabled={loading}
-              >
-                {loading ? "Processing..." : "Proceed"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
