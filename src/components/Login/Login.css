@@ -69,3 +69,13 @@
   margin-left: 0;
   text-align: start;
 }
+.register-link {
+  color: blue;
+  cursor: pointer; /* Thay đổi con trỏ thành hình bàn tay */
+  transition: color 0.3s ease, text-decoration 0.3s ease; /* Hiệu ứng chuyển màu mượt mà */
+}
+
+.register-link:hover {
+  color: darkblue; /* Thay đổi màu chữ khi hover */
+  text-decoration: underline; /* Thêm gạch chân khi hover */
+}

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Row, Col, Card } from 'antd';
+import { Row, Col, Card, Button } from 'antd';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import stuService from '../HomePage/images/stuService.png'; // Đường dẫn tới ảnh studio 1
-import "../RentPage/PhotoServices.css"
+import "../RentPage/PhotoServices.css";
 
 const services = [
   {
@@ -24,13 +25,19 @@ const services = [
 ];
 
 const PhotoServices = () => {
+  const navigate = useNavigate(); // Hook để điều hướng
+
+  const handleContactClick = () => {
+    navigate('/Contact'); // Điều hướng đến trang Contact
+  };
+
   return (
-    <div >
+    <div>
       <h2 className='header-title' style={{ textAlign: 'center' }}>CHO THUÊ STUDIO</h2>
       <Row className='row-services' gutter={[0, 16]} justify="center">
         {services.map(service => (
           <Col className='column-services' key={service.id} xs={24} sm={12} md={8} lg={8}>
-             <Card
+            <Card
               hoverable
               cover={<img alt={service.title} src={service.image} />}
               style={{
@@ -38,16 +45,23 @@ const PhotoServices = () => {
                 overflow: 'hidden',
                 textAlign: 'center',
                 boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                width: '100%', // Đảm bảo thẻ chiếm 100% chiều rộng cột
-                height:'450px',  
-                paddingLeft:'20px',
-                paddingRight:'20px'
+                width: '100%',
+                height: '450px',
+                paddingLeft: '20px',
+                paddingRight: '20px',
               }}
             >
               <p>{service.title}: {service.price}</p>
               <p>{service.additionalFee}</p>
               {service.extra && <p>{service.extra}</p>}
               <p>{service.discount}</p>
+              <Button
+                type="primary"
+                style={{ marginTop: '20px' }}
+                onClick={handleContactClick}
+              >
+                Liên hệ
+              </Button>
             </Card>
           </Col>
         ))}

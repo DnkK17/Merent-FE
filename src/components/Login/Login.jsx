@@ -127,10 +127,11 @@ const Login = () => {
         </Form>
 
         <div className="login-link">
-          <p>Bạn chưa có tài khoản? <span onClick={() => {
-            navigate('/Register');
-          }}>Đăng ký</span></p>
-        </div>
+  <p>Bạn chưa có tài khoản? <span className="register-link" onClick={() => {
+    navigate('/Register');
+  }}>Đăng ký</span></p>
+</div>
+
       </div>
       <div className="form-pic">
         <img src={loginPic} className='camera-pic' alt="Login visual" />

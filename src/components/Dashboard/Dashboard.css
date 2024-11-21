@@ -177,6 +177,7 @@
 }
 
 .btn-approve,
+.btn-detail,
 .btn-reject {
   padding: 5px 10px;
   margin: 0 5px;
@@ -195,7 +196,10 @@
   background-color: #f44336;
   color: white;
 }
-
+.btn-detail {
+  background-color: #4c68af;
+  color: white;
+}
 .btn-approve:disabled,
 .btn-reject:disabled {
   background-color: #ddd;

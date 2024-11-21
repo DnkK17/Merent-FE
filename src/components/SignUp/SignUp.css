@@ -66,3 +66,14 @@ color: #000;
 margin-left: 0;
 text-align: start;
 }
+.login-link-a {
+  color: blue;
+  cursor: pointer; /* Hiển thị con trỏ hình bàn tay khi hover */
+
+  transition: color 0.3s ease, text-decoration 0.3s ease; /* Tạo hiệu ứng chuyển đổi mượt */
+}
+
+.login-link-a:hover {
+  color: darkblue; /* Thay đổi màu chữ khi hover */
+  text-decoration: underline; /* Thêm gạch chân khi hover */
+}

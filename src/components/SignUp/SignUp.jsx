@@ -2,11 +2,18 @@ import { Button, Checkbox, Form, Input, message } from 'antd';
 import React from 'react';
 import { api } from '../../services/apiConfig';
 import loginPic from "../HomePage/images/loginPic.png";
+import { useNavigate } from 'react-router-dom';
 import '../SignUp/SignUp.css';
 
 
 const SignUp = () => {
-
+  const navigate = useNavigate();
+  const handleRegister = () => {
+    navigate('/Register');
+  }
+  const handleLogin = () => {
+    navigate('/Login');
+  }
   const onFinish = async (values) => {
     try {
       const response = await api.post("/Authentication/Register", {
@@ -100,7 +107,7 @@ const SignUp = () => {
       </Form.Item>
     </Form>
     <div className="login-link">
-      <p>Có một tài khoản? <a href="/login">Đăng nhập</a></p>
+      <p>Có một tài khoản? <a hover style={{color:'blue'}} onClick={handleLogin}>Đăng nhập</a></p>
     </div>
     </div>
     <div className="form-pic">

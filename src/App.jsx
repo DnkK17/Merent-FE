@@ -23,6 +23,8 @@ import SignUp from "./components/SignUp/SignUp";
 import Terms from "./components/TermsPage/Terms";
 import Workshop from "./components/Workshop/Workshop";
 import GimbalRent from "./components/RentPage/Gimbal/GimbalRent";
+import ComboDash from "./components/Dashboard/ComboDash";
+import ContactUs from "./components/ContactPage/ContactUs";
 
 function App() {
   const user = localStorage.getItem('name');
@@ -45,9 +47,11 @@ useEffect(() => {
           <Route path="Dashboard" element={<Dashboard />} />
           <Route path="Dashboard/Customers" element={<CustomerDash />} />
           <Route path="Dashboard/Products" element={<ProductDash />} />
+          <Route path="Dashboard/Combos" element={<ComboDash />} />
         </Route>
         <Route path="/" element={<MainPage />}>
           <Route index element={<HomePage />} />
+          <Route path="/Contact" element={<ContactUs/>}/>
           <Route path="/About" element={<About />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/Rent/Cameras" element={<Rent />} />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { Modal, Button } from "antd";
 import { Bar } from 'react-chartjs-2';
 import "./Dashboard.css";
 import { Chart, CategoryScale, LinearScale, BarElement } from 'chart.js';
@@ -15,6 +16,18 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
   const ordersPerPage = 5; // Số đơn hàng hiển thị mỗi trang
+  const [selectedOrder, setSelectedOrder] = useState(null); // Đơn hàng được chọn
+  const [modalVisible, setModalVisible] = useState(false); // Trạng thái hiển thị modal
+  const [products, setProducts] = useState([]); // Lưu danh sách sản phẩm của đơn hàng
+  useEffect(() => {
+    axios
+      .get("https://merent.uydev.id.vn/api/ProductOrder")
+      .then((response) => {
+        const data = Array.isArray(response.data) ? response.data : response.data.data || [];
+        setOrders(data);
+      })
+      .catch((error) => console.error("Error fetching orders:", error));
+  }, []);
   useEffect(() => {
     axios
       .get("https://merent.uydev.id.vn/api/ProductOrder")
@@ -104,6 +117,11 @@ const Dashboard = () => {
 
   // Xử lý từ chối đơn hàng
   const handleReject = async (order) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((o) =>
+        o.id === order.id ? { ...o, statusOrder: "Rejected" } : o
+      )
+    );
     try {
       // Bước 1: Hoàn tiền
       await axios.post(`https://merent.uydev.id.vn/api/Wallet/refund`, null, {
@@ -127,9 +145,41 @@ const Dashboard = () => {
       );
     } catch (error) {
       console.error("Error rejecting order:", error);
+      setOrders((prevOrders) =>
+        prevOrders.map((o) =>
+          o.id === order.id ? { ...o, statusOrder: order.statusOrder } : o
+        )
+      );
     }
   };
+  const fetchOrderDetails = (orderId) => {
+    axios
+      .get(`https://merent.uydev.id.vn/api/ProductOrderDetail`)
+      .then((response) => {
+        const data = Array.isArray(response.data) ? response.data : response.data.data || [];
+        const filteredProducts = data.filter((item) => item.orderID === orderId);
 
+        // Lấy thông tin chi tiết của sản phẩm từ API Product
+        Promise.all(
+          filteredProducts.map((product) =>
+            axios.get(`https://merent.uydev.id.vn/api/Product/${product.productID}`).then((res) => ({
+              ...product,
+              productName: res.data.name, // Thêm tên sản phẩm
+            }))
+          )
+        )
+          .then((results) => setProducts(results))
+          .catch((error) => console.error("Error fetching product details:", error));
+      })
+      .catch((error) => console.error("Error fetching order details:", error));
+  };
+
+  // Hiển thị modal khi nhấn vào đơn hàng
+  const handleShowOrderDetails = (order) => {
+    setSelectedOrder(order);
+    fetchOrderDetails(order.id);
+    setModalVisible(true);
+  };
   return (
     <div className="dashboard-content">
       <div className="dashboard-header">
@@ -158,12 +208,12 @@ const Dashboard = () => {
           <Bar data={salesData} />
         </div>
         <div className="traffic-source">
-          <h4>Traffic Source</h4>
+          <h4>Đơn hàng</h4>
           <table className="orders-table">
             <thead style={{ color: "black" }}>
               <tr>
                 <th>ID</th>
-                <th>Description</th>
+                <th>Description</th>            
                 <th>Order Date</th>
                 <th>Amount</th>
                 <th>Total Price</th>
@@ -198,16 +248,22 @@ const Dashboard = () => {
                     <button
                       className="btn-approve"
                       onClick={() => handleApprove(order)}
-                      disabled={order.statusOrder != null}
+                      disabled={order.statusOrder != null && order.statusOrder != 'Pending'}
                     >
                       Approve
                     </button>
                     <button
                       className="btn-reject"
                       onClick={() => handleReject(order)}
-                      disabled={order.statusOrder != null}
+                      disabled={order.statusOrder != null&& order.statusOrder != 'Pending'}
                     >
                       Reject
+                    </button>
+                    <button
+                        className="btn-detail"
+                      onClick={() => handleShowOrderDetails(order)}
+                    >
+                      Xem chi tiết
                     </button>
                   </td>
                 </tr>
@@ -243,7 +299,36 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+       {/* Modal hiển thị chi tiết sản phẩm */}
+       <Modal
+        title={`Chi tiết sản phẩm của đơn hàng #${selectedOrder?.id}`}
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={null}
+      >
+        <table className="products-table">
+          <thead>
+            <tr>
+              <th>Product ID</th>
+              <th>Tên sản phẩm</th>
+              <th>Số lượng</th>
+              <th>Đơn giá</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.map((product) => (
+              <tr key={product.productID}>
+                <td>{product.productID}</td>
+                <td>{product.productName}</td>
+                <td>{product.quantity}</td>
+                <td>${product.unitPrice}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Modal>
     </div>
+    
   );
 };
 

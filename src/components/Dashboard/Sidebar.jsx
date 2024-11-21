@@ -29,6 +29,7 @@ const Sidebar = () => {
             <li><a onClick={() => navigate('/Admin/Dashboard')} style={{ cursor: 'pointer' }}>Overview</a></li>
             <li><a onClick={() => navigate('/Admin/Dashboard/Customers')} style={{ cursor: 'pointer' }}>Customers</a></li>
             <li><a onClick={() => navigate('/Admin/Dashboard/Products')} style={{ cursor: 'pointer' }}>Products</a></li>
+            <li><a onClick={() => navigate('/Admin/Dashboard/Combos')} style={{ cursor: 'pointer' }}>Combos</a></li>
             <li><a onClick={handleLogout} style={{ cursor: 'pointer' }}>Log out</a></li>
         </ul>
        
