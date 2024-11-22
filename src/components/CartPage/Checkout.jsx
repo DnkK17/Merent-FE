@@ -14,7 +14,7 @@ function Checkout() {
   const [form] = Form.useForm(); // Sử dụng Ant Design Form instance
   const [wallet, setWallet] = useState(null);
   const [cartItems, setCartItems] = useState(state?.cartItems || []);
-  const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity || total + item.totalPrice, 0);
   const [user, setUser] = useState(null);
   const [orderId, setOrderId] = useState(null);
 
@@ -36,12 +36,15 @@ function Checkout() {
     // Tự động điền ghi chú dựa trên danh sách sản phẩm
     if (cartItems.length > 0) {
       const noteContent = cartItems
+        .filter((item) => !item.comboName)  // Exclude items with a comboName
         .map((item) => `${item.quantity} x ${item.name}`)
         .join(', ');
+        
       form.setFieldsValue({
-        note: `Danh sách sản phẩm: ${noteContent}`,
+        note: `${noteContent}`,
       });
     }
+    
   }, [cartItems, form]);
 
   const fetchWalletInfo = async () => {
@@ -78,13 +81,13 @@ function Checkout() {
       Swal.fire('Thất bại', 'Vui lòng đăng nhập để tiếp tục.', 'error');
       return;
     }
-
+  
     try {
       if (wallet.cash < totalAmount) {
         Swal.fire('Thất bại', 'Số dư ví không đủ để thanh toán.', 'error');
         return;
       }
-
+  
       const orderData = {
         description: note || 'Đơn hàng mới',
         orderDate: new Date().toISOString(),
@@ -93,7 +96,7 @@ function Checkout() {
         userID: user.id,
         statusOrder: 'Pending',
       };
-
+  
       const orderResponse = await fetch('https://merent.uydev.id.vn/api/ProductOrder', {
         method: 'POST',
         headers: {
@@ -101,18 +104,56 @@ function Checkout() {
         },
         body: JSON.stringify(orderData),
       });
-
+  
       if (!orderResponse.ok) throw new Error('Order creation failed');
-
+  
       const orderId = await getLatestOrderId();
-      const orderDetailPromises = cartItems.map((item) => {
-        const orderDetailData = {
-          productID: item.id,
-          orderId: orderId,
-          quantity: item.quantity,
-          unitPrice: item.price,
+  
+      const productItems = [];
+      const comboItems = [];
+      
+      cartItems.forEach((item) => {
+        if (item.comboID) {
+          // If the item is a combo, add to comboItems
+          comboItems.push(item.comboID);
+        } else {
+          // Otherwise, treat it as a regular product
+          productItems.push({
+            productID: item.id,
+            orderId: orderId,
+            quantity: item.quantity,
+            unitPrice: item.price,
+          });
+        }
+      });
+        const comboNote = cartItems
+        .filter((item) => !item.name) 
+        .map((item) => `${item.quantity} x ${item.comboName}`)
+        .join(', ');
+      // Handle combo items separately
+      if (comboItems.length > 0) {
+        const comboOrderData = {
+          description: comboNote || 'Đơn hàng mới',
+          orderDate: new Date().toISOString(),
+          comboIds: comboItems,
+          userID: user.id,
         };
-
+        
+        const comboResponse = await fetch('https://merent.uydev.id.vn/api/ProductOrder/create-for-combo', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(comboOrderData),
+        });
+  
+        if (!comboResponse.ok) {
+          throw new Error('Combo order creation failed');
+        }
+      }
+  
+      // Handle regular product order details
+      const orderDetailPromises = productItems.map((orderDetailData) => {
         return fetch('https://merent.uydev.id.vn/api/ProductOrderDetail', {
           method: 'POST',
           headers: {
@@ -121,20 +162,20 @@ function Checkout() {
           body: JSON.stringify(orderDetailData),
         });
       });
-
+  
       const orderDetailResponses = await Promise.all(orderDetailPromises);
-
+  
       if (orderDetailResponses.some((response) => !response.ok)) {
         throw new Error('One or more OrderDetails creation failed');
       }
-
+  
       const walletUpdateData = {
         id: wallet.id,
         userId: wallet.userId,
         cash: wallet.cash - totalAmount,
         walletType: wallet.walletType,
       };
-
+  
       const walletResponse = await fetch(
         `https://merent.uydev.id.vn/api/Wallet/${wallet.id}`,
         {
@@ -145,20 +186,21 @@ function Checkout() {
           body: JSON.stringify(walletUpdateData),
         }
       );
-
+  
       if (!walletResponse.ok) {
         throw new Error('Wallet update failed');
       }
-
+  
       Swal.fire('Thành công', 'Đơn hàng đã được tạo thành công!', 'success');
     } catch (error) {
       console.error('Error creating order or order details:', error);
       Swal.fire('Thất bại', 'Không thể tạo đơn hàng. Vui lòng thử lại.', 'error');
     }
-
+  
     setCartItems([]);
     localStorage.removeItem('cartItems');
   };
+  
 
   const onFinish = async (values) => {
     Swal.fire({
@@ -204,15 +246,23 @@ function Checkout() {
               <List.Item>
                 <Row align="middle">
                   <Col span={6}>
-                    <img alt={item.name} src={item.urlCenter} style={{ width: '100%' }} />
+                    <img alt={item.name} src={item.urlImg || item.urlCenter} style={{ width: '100%' }} />
                   </Col>
                   <Col span={12}>
-                    <Title level={4}>{item.name}</Title>
-                    <Text>{item.price.toLocaleString()} VNĐ</Text>
+                  <Title level={4}>{item.name||item.comboName}</Title>
+                      {/* Display totalPrice if available in localStorage */}
+                      <Text>
+                        {item.totalPrice ||
+                          item.price.toLocaleString() } VNĐ
+                      </Text>
+                    
                   </Col>
                   <Col span={6}>
-                    <Text>Số lượng: {item.quantity}</Text>
+                    <Text>
+                      Số lượng: {1|| item.quantity}
+                    </Text>
                   </Col>
+
                 </Row>
               </List.Item>
             )}
@@ -221,7 +271,10 @@ function Checkout() {
             <Title level={4}>Thông tin đơn hàng</Title>
             <Row justify="space-between">
               <Text>Tổng tiền:</Text>
-              <Text strong>{totalAmount.toLocaleString()} VNĐ</Text>
+              <Text strong>
+                 {totalAmount.toLocaleString()}  VNĐ
+              </Text>
+                  
             </Row>
             <Row justify="space-between" style={{ marginTop: '10px' }}>
               <Text>Phí vận chuyển:</Text>

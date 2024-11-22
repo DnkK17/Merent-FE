@@ -62,7 +62,7 @@ useEffect(() => {
           <Route path="/Services/Studio" element={<PhotoServices />} />
           <Route path="/TermsOfUse" element={< Terms/>} />
           <Route path="/Workshop" element={<Workshop/>}/>
-          <Route path="/Combo" element={<Combo/>}/>
+          <Route path="/Combo" element={<Combo cartItems={cartItems} setCartItems={setCartItems}/>}/>
           <Route path="/Profile" element={<ProfilePage/>}/>
           <Route path="/Cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
           <Route path="/Cart/Checkout" element={<Checkout cartItems={cartItems} setCartItems={setCartItems}/>} />

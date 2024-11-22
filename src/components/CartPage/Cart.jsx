@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { List, Button, Typography, Row, Col } from 'antd';
-import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
-import { DeleteOutlined } from '@ant-design/icons';
+import { MinusOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';  // Import useNavigate
 import './Cart.css';
 
@@ -9,7 +8,7 @@ const { Title, Text } = Typography;
 
 function Cart({ cartItems, setCartItems }) {
   const navigate = useNavigate();  // Initialize useNavigate
-
+ 
   // Khi component tải, lấy giỏ hàng từ localStorage nếu có
   useEffect(() => {
     const savedCartItems = localStorage.getItem('cartItems');
@@ -28,8 +27,8 @@ function Cart({ cartItems, setCartItems }) {
   const handleRemoveItem = (id) => {
     const updatedCart = cartItems.filter(item => item.id !== id);
     setCartItems(updatedCart);
+    
   };
-
   const handleIncreaseQuantity = (id) => {
     const updatedCart = cartItems.map(item =>
       item.id === id ? { ...item, quantity: item.quantity + 1 } : item
@@ -72,29 +71,41 @@ function Cart({ cartItems, setCartItems }) {
               >
                 <Row align="middle">
                   <Col span={6}>
-                    <img alt={item.name} src={item.urlCenter} style={{ width: '100%', borderRadius: '8px' }} />
+                    <img alt={item.name} src={item.urlImg || item.urlCenter} style={{ width: '100%', borderRadius: '8px' }} />
                   </Col>
                   <Col span={12}>
                     <div className='items-information'>
-                      <Title level={4}>{item.name}</Title>
-                      <Text>{item.price.toLocaleString()} VNĐ</Text>
+                      <Title level={4}>{item.name||item.comboName}</Title>
+                      {/* Display totalPrice if available in localStorage */}
+                      <Text>
+                        {
+                           item.totalPrice ||
+                           item.price.toLocaleString()} VNĐ
+                      </Text>
+
                     </div>
                   </Col>
                   <Col span={6}>
                     <Row align="middle" justify="center">
-                      <Button
-                        icon={<MinusOutlined />}
-                        onClick={() => handleDecreaseQuantity(item.id)}
-                        size="large"
-                        style={{ marginRight: '8px', backgroundColor: "white", borderStyle: 'solid', borderWidth: '1px' }}
-                      />
-                      <Text style={{ fontSize: '20px', marginLeft: '10px', marginRight: '10px' }}>{item.quantity}</Text>
-                      <Button
-                        icon={<PlusOutlined />}
-                        onClick={() => handleIncreaseQuantity(item.id)}
-                        size="large"
-                        style={{ marginLeft: '8px', backgroundColor: '#082C44', color: 'white' }}
-                      />
+                      {/* Hide buttons if totalPrice is in localStorage */}
+                      {!item.comboID   && (
+                        <>
+                          <Button
+                            icon={<MinusOutlined />}
+                            onClick={() => handleDecreaseQuantity(item.id)}
+                            size="large"
+                            style={{ marginRight: '8px', backgroundColor: "white", borderStyle: 'solid', borderWidth: '1px' }}
+                          />
+                          <Text style={{ fontSize: '20px', marginLeft: '10px', marginRight: '10px' }}>{item.quantity}</Text>
+                          <Button
+                            icon={<PlusOutlined />}
+                            onClick={() => handleIncreaseQuantity(item.id)}
+                            size="large"
+                            style={{ marginLeft: '8px', backgroundColor: '#082C44', color: 'white' }}
+                          />
+                        </>
+                      )}
+                      {/* Remove button always visible */}
                       <Button
                         type="link"
                         icon={<DeleteOutlined />}

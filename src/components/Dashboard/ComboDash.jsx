@@ -161,24 +161,32 @@ const ComboDash = () => {
   const handleProductNameChange = async (e) => {
     const productName = e.target.value;
     setNewProductCombo({ ...newProductCombo, description: productName });
+    console.log(productName);
   
     // Gọi API để lấy productID dựa trên tên
     try {
-      const response = await fetch(`https://merent.uydev.id.vn/api/Product/${productName}`);
+      const response = await fetch(`https://merent.uydev.id.vn/api/Product/search-by-name?name=${productName}`);
       const result = await response.json();
-      if (result && result.id) {
-        setNewProductCombo((prev) => ({ ...prev, productID: result.id }));
+      console.log(result); // Kiểm tra dữ liệu trả về từ API
+      const dataID = result.data;
+      // Kiểm tra nếu có dữ liệu
+      if (result) {
+        console.log(dataID)
+        console.log(dataID[0])
+        const productID = dataID[0].id; // Lấy giá trị 'id' từ đối tượng đầu tiên trong mảng
+        setNewProductCombo((prev) => ({ ...prev, productID }));
       } else {
-        
+        console.error('No product found');
       }
     } catch (error) {
-     
+      console.error('Error fetching product:', error);
     }
   };
+
   
   const handleAddProductToCombo = async () => {
     const { comboID, productID, description, quantity } = newProductCombo;
-  
+    console.log(newProductCombo)
     if ( !comboID || !description || !quantity) {
       message.error("All fields are required!");
       return;

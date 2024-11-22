@@ -1,6 +1,7 @@
 import React, { useState, useEffect,useRef } from 'react';
 import { Layout, Row, Col, Button, message, Card, Tooltip } from 'antd'; // Import Tooltip
 import { useLocation, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2'; 
 import './Rent.css';
 
 const { Content } = Layout;
@@ -11,6 +12,7 @@ function RentDetail({ cartItems, setCartItems }) {
   const [products, setProducts] = useState([]);
   const [error, setError] = useState(null);
   const productDetailRef = useRef(null);
+  const totalPrice = localStorage.getItem('totalPrice');
   useEffect(() => {
     fetch('https://merent.uydev.id.vn/api/Product')
       .then((response) => {
@@ -47,6 +49,7 @@ function RentDetail({ cartItems, setCartItems }) {
   const handleDecrease = () => quantity > 1 && setQuantity(prev => prev - 1);
 
   const handleAddToCart = () => {
+
     if (selectedProduct && quantity > 0) {
       const newItem = { ...selectedProduct, quantity };
 
@@ -56,7 +59,7 @@ function RentDetail({ cartItems, setCartItems }) {
             item.id === newItem.id ? { ...item, quantity: item.quantity + quantity } : item
           )
         : [...cartItems, newItem];
-
+  
       setCartItems(updatedCartItems);
       localStorage.setItem('cartItems', JSON.stringify(updatedCartItems));
       message.success(`${newItem.name} đã được thêm vào giỏ hàng!`);

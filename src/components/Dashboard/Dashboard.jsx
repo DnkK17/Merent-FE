@@ -124,11 +124,11 @@ const Dashboard = () => {
     );
     try {
       // Bước 1: Hoàn tiền
-      await axios.post(`https://merent.uydev.id.vn/api/Wallet/refund`, null, {
-        params: {
+      await axios.post(`https://merent.uydev.id.vn/api/Wallet/refund?userId=${order.userID}&amount=${order.totalAmount}`, {
+        
           userId: order.userID,
           amount: order.totalAmount,
-        },
+        
       });
 
       // Bước 2: Cập nhật trạng thái của order
@@ -157,18 +157,24 @@ const Dashboard = () => {
       .get(`https://merent.uydev.id.vn/api/ProductOrderDetail`)
       .then((response) => {
         const data = Array.isArray(response.data) ? response.data : response.data.data || [];
-        const filteredProducts = data.filter((item) => item.orderID === orderId);
+        const filteredProducts = data.filter((item) => item.orderId === orderId);
 
         // Lấy thông tin chi tiết của sản phẩm từ API Product
         Promise.all(
           filteredProducts.map((product) =>
             axios.get(`https://merent.uydev.id.vn/api/Product/${product.productID}`).then((res) => ({
-              ...product,
-              productName: res.data.name, // Thêm tên sản phẩm
+              productID: product.productID,
+              quantity: product.quantity,
+              unitPrice: product.unitPrice,
+              productName: product.productName, 
+             
             }))
+            
           )
+          
         )
-          .then((results) => setProducts(results))
+        
+          .then((results) => setProducts(results)) 
           .catch((error) => console.error("Error fetching product details:", error));
       })
       .catch((error) => console.error("Error fetching order details:", error));
@@ -179,6 +185,7 @@ const Dashboard = () => {
     setSelectedOrder(order);
     fetchOrderDetails(order.id);
     setModalVisible(true);
+    console.log(products);
   };
   return (
     <div className="dashboard-content">
@@ -308,11 +315,11 @@ const Dashboard = () => {
       >
         <table className="products-table">
           <thead>
-            <tr>
-              <th>Product ID</th>
-              <th>Tên sản phẩm</th>
-              <th>Số lượng</th>
-              <th>Đơn giá</th>
+            <tr >
+              <th style={{paddingRight:'20px'}}>Product ID</th>
+              <th style={{paddingRight:'20px'}}>Tên sản phẩm</th>
+              <th style={{paddingRight:'20px'}}>Số lượng</th>
+              <th style={{paddingRight:'20px'}}>Đơn giá 1 sản phẩm</th>
             </tr>
           </thead>
           <tbody>
@@ -321,7 +328,7 @@ const Dashboard = () => {
                 <td>{product.productID}</td>
                 <td>{product.productName}</td>
                 <td>{product.quantity}</td>
-                <td>${product.unitPrice}</td>
+                <td>{product.unitPrice}</td>
               </tr>
             ))}
           </tbody>
