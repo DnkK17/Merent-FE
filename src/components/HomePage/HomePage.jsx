@@ -19,6 +19,7 @@ function HomePage() {
   const [user, setUser] = useState(null);
   const [userID, setUserID] = useState(null);
   const [products,setProducts] = useState([]);
+  const [newestProducts, setNewestProducts] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
     // Lấy thông tin user từ localStorage
@@ -28,6 +29,7 @@ function HomePage() {
       setUserID(storedUser);
     }
     fetchProducts();
+    fetchLatestProducts();
   }, []);
 
   useEffect(() => {
@@ -79,6 +81,27 @@ function HomePage() {
       }
     }
   };
+  const fetchLatestProducts = async () => {
+     
+    try {
+      const { data } = await api.get(
+        `/Product/list-product-latest`
+      );
+
+      if (data.success ) {
+        setNewestProducts(data.data);
+        console.log("Thành công khi lấy thông tin products");
+      } else {
+        console.log("Lỗi khi lấy thông tin products");
+      }
+    } catch (error) {
+      console.error("Wallet API error:", error);
+      if (!userID) {
+        message.info("Vui lòng đăng nhập để truy cập thông tin ví.");
+        return;
+      }
+    }
+  };
   const handleProductClick = (product) => {
     navigate(`/Rent/Items/${product.name}`, { state: { product } }); // Passing product as state
   };
@@ -108,6 +131,25 @@ function HomePage() {
               </Col>
             ))}
           </Row>
+          
+        </div>
+        <div className="site-product">
+          <h2 className="section-titl">Sản Phẩm Mới Nhất</h2>
+          <Row gutter={[2, 99]} justify="center">
+            {newestProducts.map((product) => (
+              <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
+                <Card
+                  className="custom-cardz"
+                  hoverable
+                  cover={<img alt={product.name} src={product.urlCenter} className="product-image" />}
+                  onClick={() => handleProductClick(product)}
+                >
+                  <Card.Meta title={product.name} description={`${product.price} VNĐ`} />
+                </Card>
+              </Col>
+            ))}
+          </Row>
+          
         </div>
       </Content>
     </Layout>

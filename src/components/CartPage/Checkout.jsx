@@ -81,6 +81,7 @@ function Checkout() {
   };
 
   const createOrderAndDetails = async (note) => {
+    console.log(singleOrdercheck);
     if (!user) {
       Swal.fire('Thất bại', 'Vui lòng đăng nhập để tiếp tục.', 'error');
       return;
@@ -92,6 +93,7 @@ function Checkout() {
         return;
       }
       if(singleOrdercheck){
+        
       const orderData = {
         description: note || 'Đơn hàng mới',
         orderDate: new Date().toISOString(),
