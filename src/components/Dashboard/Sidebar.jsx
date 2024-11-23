@@ -11,7 +11,7 @@ const Sidebar = () => {
     localStorage.removeItem('name');
     localStorage.removeItem('token');
     localStorage.removeItem('cartItems');
-    
+    localStorage.removeItem('id');
     // Cập nhật trạng thái (nếu cần, có thể là setName('') nếu bạn có sử dụng useState cho name)
     // setName('');
 
