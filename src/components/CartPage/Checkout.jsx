@@ -18,6 +18,8 @@ function Checkout() {
   const [user, setUser] = useState(null);
   const [orderId, setOrderId] = useState(null);
   const comboPrice = cartItems?.reduce((acc, item) => acc + (item.totalPrice || 0), 0) || 0;
+  const singleOrdercheck = cartItems?.reduce((acc, item) => acc + (item.price || 0), 0) || 0;
+  const [latestOrderId, setLatestOrderId] = useState([]);
 
   useEffect(() => {
     fetchWalletInfo();
@@ -89,7 +91,7 @@ function Checkout() {
         Swal.fire('Thất bại', 'Số dư ví không đủ để thanh toán.', 'error');
         return;
       }
-  
+      if(singleOrdercheck){
       const orderData = {
         description: note || 'Đơn hàng mới',
         orderDate: new Date().toISOString(),
@@ -110,6 +112,8 @@ function Checkout() {
       if (!orderResponse.ok) throw new Error('Order creation failed');
   
       const orderId = await getLatestOrderId();
+      setLatestOrderId(orderId);
+    }
   
       const productItems = [];
       const comboItems = [];
@@ -122,7 +126,7 @@ function Checkout() {
           // Otherwise, treat it as a regular product
           productItems.push({
             productID: item.id,
-            orderId: orderId,
+            orderId: latestOrderId,
             quantity: item.quantity,
             unitPrice: item.price,
           });
@@ -153,8 +157,9 @@ function Checkout() {
           throw new Error('Combo order creation failed');
         }
       }
-  
+      
       // Handle regular product order details
+      if(singleOrdercheck){
       const orderDetailPromises = productItems.map((orderDetailData) => {
         return fetch('https://merent.uydev.id.vn/api/ProductOrderDetail', {
           method: 'POST',
@@ -170,7 +175,7 @@ function Checkout() {
       if (orderDetailResponses.some((response) => !response.ok)) {
         throw new Error('One or more OrderDetails creation failed');
       }
-  
+    }
       const walletUpdateData = {
         id: wallet.id,
         userId: wallet.userId,
