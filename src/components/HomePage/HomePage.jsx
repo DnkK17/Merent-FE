@@ -121,7 +121,7 @@ function HomePage() {
             {products.map((product) => (
               <Col key={product.id} xs={24} sm={12} md={8} lg={6}>
                 <Card
-                  className="custom-cards"
+                  className="custom-cardz"
                   hoverable
                   cover={<img alt={product.name} src={product.urlCenter} className="product-image" />}
                   onClick={() => handleProductClick(product)}
