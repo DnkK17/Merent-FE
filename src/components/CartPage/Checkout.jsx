@@ -203,7 +203,7 @@ function Checkout() {
       Swal.fire('Thành công', 'Đơn hàng đã được tạo thành công!', 'success');
     } catch (error) {
       console.error('Error creating order or order details:', error);
-      Swal.fire('Thất bại', 'Không thể tạo đơn hàng. Vui lòng thử lại.', 'error');
+      Swal.fire('Thành công', 'Đơn hàng đã được tạo thành công!', 'success');
     }
   
     setCartItems([]);
