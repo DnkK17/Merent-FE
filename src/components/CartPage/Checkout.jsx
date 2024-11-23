@@ -17,6 +17,7 @@ function Checkout() {
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity || total + item.totalPrice, 0);
   const [user, setUser] = useState(null);
   const [orderId, setOrderId] = useState(null);
+  const comboPrice = cartItems?.reduce((acc, item) => acc + (item.totalPrice || 0), 0) || 0;
 
   useEffect(() => {
     fetchWalletInfo();
@@ -39,7 +40,8 @@ function Checkout() {
         .filter((item) => !item.comboName)  // Exclude items with a comboName
         .map((item) => `${item.quantity} x ${item.name}`)
         .join(', ');
-        
+
+
       form.setFieldsValue({
         note: `${noteContent}`,
       });
@@ -92,7 +94,7 @@ function Checkout() {
         description: note || 'Đơn hàng mới',
         orderDate: new Date().toISOString(),
         totalAmount: cartItems.reduce((total, item) => total + item.quantity, 0),
-        totalPrice: totalAmount,
+        totalPrice: totalAmount - comboPrice,
         userID: user.id,
         statusOrder: 'Pending',
       };
