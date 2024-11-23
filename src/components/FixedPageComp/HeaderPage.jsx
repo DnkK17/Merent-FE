@@ -18,6 +18,8 @@ function HeaderPage() {
       localStorage.removeItem('name');
       localStorage.removeItem('token');
       localStorage.removeItem('cartItems');
+      localStorage.removeItem('userInfo');
+      localStorage.removeItem('id');
       navigate('/');
     } else {
       navigate(`/${e.key}`);

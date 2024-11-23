@@ -64,7 +64,8 @@ const Login = () => {
       const userInfo = response.data; // response.data chứa toàn bộ thông tin người dùng
       console.log('User Info:', userInfo);
       
-      // Lấy và lưu name từ response.data
+      // Lấy và lưu name từ response.
+      const id = userInfo.data.id;
       const userName = userInfo.data.name; // Lấy trường name từ bên trong data
       const email = userInfo.data.email;
       const phone = userInfo.data.phoneNumber;
@@ -72,9 +73,10 @@ const Login = () => {
       
       // Lưu thông tin người dùng vào localStorage
       localStorage.setItem('userInfo', JSON.stringify(userInfo.data)); // Lưu toàn bộ data vào localStorage
+      localStorage.setItem('id',id);
       localStorage.setItem('name', userName); // Lưu name riêng vào localStorage
       localStorage.setItem('phoneNumer',phone);
-      localStorage.setItem('email',email);q
+      localStorage.setItem('email',email);
     } catch (error) {
       console.error('Failed to fetch user info:', error);
     }
