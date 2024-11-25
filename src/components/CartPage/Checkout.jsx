@@ -268,7 +268,7 @@ function Checkout() {
                   </Col>
                   <Col span={6}>
                     <Text>
-                      Số lượng: {1|| item.quantity}
+                      Số lượng: {item.comboName ? 1 : item.quantity}
                     </Text>
                   </Col>
 
