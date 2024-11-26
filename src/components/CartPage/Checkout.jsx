@@ -136,7 +136,7 @@ function Checkout() {
       });
         const comboNote = cartItems
         .filter((item) => !item.name) 
-        .map((item) => `${item.quantity} x ${item.comboName}`)
+        .map((item) => `1 x ${item.comboName}`)
         .join(', ');
       // Handle combo items separately
       if (comboItems.length > 0) {
