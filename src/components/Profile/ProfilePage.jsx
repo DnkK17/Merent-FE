@@ -123,11 +123,26 @@ export default function ProfilePage() {
   const handleUpdateProfile = async (values) => {
     setLoading(true);
     try {
-      // Update user profile via API (assuming you have a suitable endpoint)
-      const response = await api.put(`/User/${userID}`, values);
+      // Lấy thông tin hiện tại của người dùng
+      const currentResponse = await api.get(`/User/${userID}`);
+      if (!currentResponse.data.success) {
+        message.error("Không thể lấy thông tin người dùng hiện tại.");
+        setLoading(false);
+        return;
+      }
+  
+      // Giữ lại các trường không thay đổi
+      const currentUserData = currentResponse.data.data;
+      const updatedData = {
+        ...currentUserData, // Lấy toàn bộ thông tin hiện tại
+        ...values,          // Ghi đè thông tin được cập nhật (email, name, phoneNumber)
+      };
+  
+      // Gửi yêu cầu cập nhật
+      const response = await api.put(`/User/${userID}`, updatedData);
       if (response.data.success) {
         message.success("Cập nhật thông tin thành công!");
-        setUser({ ...user, ...values });
+        setUser({ ...user, ...updatedData }); // Cập nhật thông tin trong state
         setIsModalVisible(false);
       } else {
         message.error("Cập nhật thất bại, vui lòng thử lại.");
@@ -138,6 +153,7 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
+  
   const transactionColumns = [
     { title: "ID", dataIndex: "id", key: "id" },
     { title: "Description", dataIndex: "description", key: "description" },
