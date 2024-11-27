@@ -25,6 +25,7 @@ const SignUp = () => {
       });
       if (response.status === 200) {
         message.success('Đăng ký thành công');
+        message.success('Vui lòng kiểm tra Email để kích hoạt tài khoản')
         console.log('Register successful:', response.data);
        
          
