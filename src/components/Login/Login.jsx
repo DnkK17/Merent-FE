@@ -10,7 +10,7 @@ import {jwtDecode} from 'jwt-decode'; // Sửa import jwt-decode
 const Login = () => {
   const [decoded, setDecoded] = useState();
   const navigate = useNavigate(); // Gọi useNavigate dưới dạng hàm
-  
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -26,7 +26,7 @@ const Login = () => {
 
   const onFinish = async (values) => {
     try {
-      const response = await api.post("/Authentication/login", {
+      const response = await api.post("/Authentication/Login", {
         email: values.email,
         password: values.password
       });

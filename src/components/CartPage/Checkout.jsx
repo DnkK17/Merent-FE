@@ -16,18 +16,25 @@ function Checkout() {
   const [cartItems, setCartItems] = useState(state?.cartItems || []);
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity || total + item.totalPrice, 0);
   const [user, setUser] = useState(null);
+  const [userID, setUserId] = useState(0);
   const [orderId, setOrderId] = useState(null);
   const comboPrice = cartItems?.reduce((acc, item) => acc + (item.totalPrice || 0), 0) || 0;
   const singleOrdercheck = cartItems?.reduce((acc, item) => acc + (item.price || 0), 0) || 0;
   const [latestOrderId, setLatestOrderId] = useState([]);
 
   useEffect(() => {
+    
+    console.log(totalAmount);
+    console.log(singleOrdercheck);
     fetchWalletInfo();
     const storedUser = localStorage.getItem('userInfo');
+    
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-
+      const a = localStorage.getItem('id');
+      console.log(a);
+      setUserId(a);
       // Tự động điền thông tin người dùng vào form
       form.setFieldsValue({
         email: parsedUser.email,
@@ -49,7 +56,7 @@ function Checkout() {
       });
     }
     
-  }, [cartItems, form]);
+  }, [cartItems, form,latestOrderId]);
 
   const fetchWalletInfo = async () => {
     try {
@@ -65,12 +72,17 @@ function Checkout() {
   };
 
   const getLatestOrderId = async () => {
+    const storedId = userID || localStorage.getItem('id'); // Lấy từ state hoặc localStorage
+    if (!storedId) {
+      console.error('User ID is missing or null');
+      return;
+    }
     try {
       const response = await fetch(
-        `https://merent.uydev.id.vn/api/ProductOrder/user/${user.id}/latest`
+        `https://merent.uydev.id.vn/api/ProductOrder/user/${storedId}/latest`
       );
       if (!response.ok) throw new Error('Failed to fetch latest Order ID');
-
+  
       const result = await response.json();
       setOrderId(result.id);
       return result.id;
@@ -79,74 +91,93 @@ function Checkout() {
       throw error;
     }
   };
+  
 
   const createOrderAndDetails = async (note) => {
-    console.log(singleOrdercheck);
-    if (!user) {
+    // Lấy giá trị user từ localStorage nếu chưa có trong state
+    const storedUser = localStorage.getItem('userInfo');
+    const storedId = localStorage.getItem('id');
+  
+    if (!user && storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  
+    if (!userID && storedId) {
+      setUserId(storedId);
+    }
+  
+    // Kiểm tra điều kiện đăng nhập
+    if (!storedId) {
       Swal.fire('Thất bại', 'Vui lòng đăng nhập để tiếp tục.', 'error');
       return;
     }
   
     try {
+      // Kiểm tra số dư ví
       if (wallet.cash < totalAmount) {
         Swal.fire('Thất bại', 'Số dư ví không đủ để thanh toán.', 'error');
         return;
       }
-      if(singleOrdercheck){
+  
+      if (singleOrdercheck) {
+        // Tạo dữ liệu đơn hàng
+        const orderData = {
+          description: note || 'Đơn hàng mới',
+          orderDate: new Date().toISOString(),
+          totalAmount: cartItems.reduce((total, item) => total + item.quantity, 0),
+          totalPrice: totalAmount - comboPrice,
+          userID: storedId, // Sử dụng storedId để đảm bảo không bị null
+          statusOrder: 'Pending',
+        };
+  
+        // Tạo đơn hàng
+        const orderResponse = await fetch('https://merent.uydev.id.vn/api/ProductOrder', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(orderData),
+        });
+  
+        if (!orderResponse.ok) throw new Error('Order creation failed');
+  
+      
         
-      const orderData = {
-        description: note || 'Đơn hàng mới',
-        orderDate: new Date().toISOString(),
-        totalAmount: cartItems.reduce((total, item) => total + item.quantity, 0),
-        totalPrice: totalAmount - comboPrice,
-        userID: user.id,
-        statusOrder: 'Pending',
-      };
-  
-      const orderResponse = await fetch('https://merent.uydev.id.vn/api/ProductOrder', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      });
-  
-      if (!orderResponse.ok) throw new Error('Order creation failed');
-  
-      const orderId = await getLatestOrderId();
-      setLatestOrderId(orderId);
-    }
-  
+      }
+      const orderIdLatest = await getLatestOrderId();
+      console.log('Fetched Order ID:', orderIdLatest);
+      // Tạo chi tiết đơn hàng
       const productItems = [];
       const comboItems = [];
-      
+      console.log(latestOrderId)
       cartItems.forEach((item) => {
         if (item.comboID) {
-          // If the item is a combo, add to comboItems
           comboItems.push(item.comboID);
-        } else {
-          // Otherwise, treat it as a regular product
+        } else if(item.id){
           productItems.push({
             productID: item.id,
-            orderId: latestOrderId,
+            orderId: orderIdLatest,
             quantity: item.quantity,
             unitPrice: item.price,
+            productName: item.name,
           });
         }
       });
-        const comboNote = cartItems
-        .filter((item) => !item.name) 
-        .map((item) => `1 x ${item.comboName}`)
-        .join(', ');
-      // Handle combo items separately
+  
+      // Xử lý các combo
       if (comboItems.length > 0) {
+        const comboNote = cartItems
+          .filter((item) => !item.name)
+          .map((item) => `1 x ${item.comboName}`)
+          .join(', ');
+  
         const comboOrderData = {
           description: comboNote || 'Đơn hàng mới',
           orderDate: new Date().toISOString(),
           comboIds: comboItems,
-          userID: user.id,
+          userID: storedId,
         };
-        
+  
         const comboResponse = await fetch('https://merent.uydev.id.vn/api/ProductOrder/create-for-combo', {
           method: 'POST',
           headers: {
@@ -159,31 +190,34 @@ function Checkout() {
           throw new Error('Combo order creation failed');
         }
       }
-      
-      // Handle regular product order details
-      if(singleOrdercheck){
-      const orderDetailPromises = productItems.map((orderDetailData) => {
-        return fetch('https://merent.uydev.id.vn/api/ProductOrderDetail', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(orderDetailData),
+  
+      // Xử lý chi tiết đơn hàng sản phẩm
+      if (singleOrdercheck) {
+        const orderDetailPromises = productItems.map((orderDetailData) => {
+          return fetch('https://merent.uydev.id.vn/api/ProductOrderDetail', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(orderDetailData),
+          });
         });
-      });
   
-      const orderDetailResponses = await Promise.all(orderDetailPromises);
+        const orderDetailResponses = await Promise.all(orderDetailPromises);
   
-      if (orderDetailResponses.some((response) => !response.ok)) {
-        throw new Error('One or more OrderDetails creation failed');
+        if (orderDetailResponses.some((response) => !response.ok)) {
+          throw new Error('One or more OrderDetails creation failed');
+        }
       }
-    }
+  
+      // Cập nhật số dư ví
       const walletUpdateData = {
         id: wallet.id,
         userId: wallet.userId,
         cash: wallet.cash - totalAmount,
         walletType: wallet.walletType,
       };
+      console.log(walletUpdateData);
   
       const walletResponse = await fetch(
         `https://merent.uydev.id.vn/api/Wallet/${wallet.id}`,
@@ -203,9 +237,9 @@ function Checkout() {
       Swal.fire('Thành công', 'Đơn hàng đã được tạo thành công!', 'success');
     } catch (error) {
       console.error('Error creating order or order details:', error);
-      Swal.fire('Thành công', 'Đơn hàng đã được tạo thành công!', 'success');
+      Swal.fire('Thất bại', 'Có lỗi xảy ra khi tạo đơn hàng.', 'error');
     }
-  
+
     setCartItems([]);
     localStorage.removeItem('cartItems');
   };
