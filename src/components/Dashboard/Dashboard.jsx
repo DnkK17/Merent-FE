@@ -13,6 +13,10 @@ const Dashboard = () => {
   );
   const [orders, setOrders] = useState([]); // Lưu danh sách đơn hàng
   const [totalProducts, setTotalProducts] = useState(0); // State để lưu tổng số hàng hóa
+  const [totalCustomers, setTotalCustomers] = useState(0);
+  const [totalCombo, setTotalCombos] = useState(0);
+  const [totalCountOrder, setTotalCountOrders] = useState(0);
+  const [totalEarn, setTotalEarn] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
   const ordersPerPage = 5; // Số đơn hàng hiển thị mỗi trang
@@ -24,7 +28,27 @@ const Dashboard = () => {
       .get("https://merent.uydev.id.vn/api/ProductOrder")
       .then((response) => {
         const data = Array.isArray(response.data) ? response.data : response.data.data || [];
+        const count = Array.isArray(response.data.data) ? response.data.data.length : 0;
         setOrders(data);
+        setTotalCountOrders(count);
+      })
+      .catch((error) => console.error("Error fetching orders:", error));
+  }, []);
+  useEffect(() => {
+    axios
+      .get("https://merent.uydev.id.vn/api/User/accounts")
+      .then((response) => {
+        const data = Array.isArray(response.data.data) ? response.data.data.length : 0;
+        setTotalCustomers(data);
+      })
+      .catch((error) => console.error("Error fetching orders:", error));
+  }, []);
+  useEffect(() => {
+    axios
+      .get("https://merent.uydev.id.vn/api/Combo")
+      .then((response) => {
+        const data = Array.isArray(response.data.data) ? response.data.data.length : 0;
+        setTotalCombos(data);
       })
       .catch((error) => console.error("Error fetching orders:", error));
   }, []);
@@ -34,26 +58,31 @@ const Dashboard = () => {
       .then((response) => {
         const data = Array.isArray(response.data) ? response.data : response.data.data || [];
         setOrders(data);
-
-        // Xử lý thống kê số lượng đơn hàng Approved theo từng tháng
-        const approvedCounts = Array(12).fill(0); // Mảng chứa số lượng đơn hàng cho 12 tháng
-        data.forEach((order) => {
+  
+        // Calculate approved orders per month and total earnings
+        const approvedCounts = Array(12).fill(0);
+        const totalEarn = data.reduce((sum, order) => {
           if (order.statusOrder === "Approved") {
-            const month = new Date(order.orderDate).getMonth(); // Lấy tháng (0-11)
+            const month = new Date(order.orderDate).getMonth(); // Get month (0-11)
             approvedCounts[month] += 1;
+            return sum + (order.totalPrice || 0); // Accumulate total amount
           }
-        });
+          return sum;
+        }, 0);
+  
         setApprovedOrdersPerMonth(approvedCounts);
+        setTotalEarn(totalEarn);
       })
       .catch((error) => console.error("Error fetching orders:", error));
   }, []);
+  
 
   // Gọi API để lấy tổng số sản phẩm
   useEffect(() => {
     axios
       .get("https://merent.uydev.id.vn/api/Product")
       .then((response) => {
-        const totalCount = Array.isArray(response.data) ? response.data.length : 0;
+        const totalCount = Array.isArray(response.data.data) ? response.data.data.length : 0;
         setTotalProducts(totalCount); // Cập nhật tổng số hàng hóa
       })
       .catch((error) => console.error("Error fetching products:", error));
@@ -192,21 +221,22 @@ const Dashboard = () => {
       <div className="dashboard-header">
         <div className="stat">
           <h3>KHÁCH HÀNG</h3>
-          <p>{totalProducts}</p>
-          <span>↑ 12% Since last month</span>
+          <p>{totalCustomers}</p>
+          
         </div>
         <div className="stat">
           <h3>TỔNG HÀNG HÓA</h3>
           <p>{totalProducts}</p> {/* Hiển thị tổng số sản phẩm */}
-          <span>↓ 16% Since last month</span>
+          
         </div>
         <div className="stat">
-          <h3>DỊCH VỤ</h3>
-          <p>75.5%</p>
+          <h3>TỔNG SỐ GIAO DỊCH</h3>
+          <p>{totalCountOrder}</p>
         </div>
         <div className="stat">
           <h3>DOANH THU</h3>
-          <p>$15k</p>
+          <p>{totalEarn}</p>
+          <span>VND</span>
         </div>
       </div>
       <div className="dashboard-content-main">
@@ -235,7 +265,7 @@ const Dashboard = () => {
                   <td>{order.description}</td>
                   <td>{new Date(order.orderDate).toLocaleString()}</td>
                   <td>{order.totalAmount}</td>
-                  <td>${order.totalPrice}</td>
+                  <td>{order.totalPrice} VND</td>
                   {/* Cột Status với màu động */}
                   <td
                     style={{
@@ -280,30 +310,53 @@ const Dashboard = () => {
 
           {/* Phân trang */}
           <div className="pagination" style={{ width: 100, marginRight: 0 }}>
-            <button
-              className={`page-button arrow ${currentPage === 1 ? "disabled" : ""}`}
-              onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              &lt;
-            </button>
-            {Array.from({ length: totalPages }, (_, index) => (
-              <button
-                key={index}
-                className={`page-button ${currentPage === index + 1 ? "active" : ""}`}
-                onClick={() => setCurrentPage(index + 1)}
-              >
-                {index + 1}
-              </button>
-            ))}
-            <button
-              className={`page-button arrow ${currentPage === totalPages ? "disabled" : ""}`}
-              onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              &gt;
-            </button>
-          </div>
+  <button
+    className={`page-button arrow ${currentPage === 1 ? "disabled" : ""}`}
+    onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+    disabled={currentPage === 1}
+  >
+    &lt;
+  </button>
+  {currentPage > 2 && (
+    <>
+      <button className="page-button" onClick={() => setCurrentPage(1)}>
+        1
+      </button>
+      {currentPage > 3 && <span className="dots">...</span>}
+    </>
+  )}
+  {Array.from({ length: 3 }, (_, index) => {
+    const pageNumber = currentPage - 1 + index;
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      return (
+        <button
+          key={pageNumber}
+          className={`page-button ${currentPage === pageNumber ? "active" : ""}`}
+          onClick={() => setCurrentPage(pageNumber)}
+        >
+          {pageNumber}
+        </button>
+      );
+    }
+    return null;
+  })}
+  {currentPage < totalPages - 1 && (
+    <>
+      {currentPage < totalPages - 2 && <span className="dots">...</span>}
+      <button className="page-button" onClick={() => setCurrentPage(totalPages)}>
+        {totalPages}
+      </button>
+    </>
+  )}
+  <button
+    className={`page-button arrow ${currentPage === totalPages ? "disabled" : ""}`}
+    onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+    disabled={currentPage === totalPages}
+  >
+    &gt;
+  </button>
+</div>
+
         </div>
       </div>
        {/* Modal hiển thị chi tiết sản phẩm */}

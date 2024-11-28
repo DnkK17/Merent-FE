@@ -41,7 +41,8 @@ function LightingRent() {
                     cover={<img alt={product.name} src={product.urlCenter} className="product-image" />}
                     onClick={() => handleProductClick(product)}
                   >
-                    <Card.Meta title={product.name} description={`${product.price} VNĐ`} />
+                    <Card.Meta title={product.name} description={`${product.price.toLocaleString("vi-VN")} VNĐ`}
+ />
                   </Card>
                 </Col>
               ))}

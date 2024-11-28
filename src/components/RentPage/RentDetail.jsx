@@ -140,7 +140,7 @@ function RentDetail({ cartItems, setCartItems }) {
             <Col xs={24} sm={24} md={12} lg={6}>
               <div className='camera-descriptionss' style={{marginTop:'40px'}}>
                 <h1>{selectedProduct.name}</h1>
-                <h2 style={{ color: 'red', fontSize:'20px',marginTop:'10px' }}>{`${selectedProduct.price} VNĐ`}</h2>
+                <h2 style={{ color: 'red', fontSize:'20px',marginTop:'10px' }}>{`${selectedProduct.price.toLocaleString("vi-VN")} VNĐ`}</h2>
                 <p>{selectedProduct.description}</p>
                 <div style={{display:'flex',justifyContent:'center',marginTop:'10px'}}>
                   <Button onClick={handleDecrease} style={{ backgroundColor: 'white', border: '1px solid #d9d9d9', width:'20px' }}>-</Button>
@@ -165,7 +165,8 @@ function RentDetail({ cartItems, setCartItems }) {
                   cover={<img alt={product.name} src={product.urlCenter} className="product-image" />}
                   onClick={() => handleProductClick(product)}
                 >
-                  <Card.Meta title={product.name} description={`${product.price} VNĐ`} />
+                  <Card.Meta title={product.name} description={`${product.price.toLocaleString("vi-VN")} VNĐ`}
+ />
                 </Card>
               </Col>
             ))}
