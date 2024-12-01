@@ -235,7 +235,7 @@ const Dashboard = () => {
         </div>
         <div className="stat">
           <h3>DOANH THU</h3>
-          <p>{totalEarn}</p>
+          <p>{totalEarn.toLocaleString("vi-VN")}</p>
           <span>VND</span>
         </div>
       </div>
