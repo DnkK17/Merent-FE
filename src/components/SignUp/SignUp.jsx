@@ -1,4 +1,4 @@
-import { Button, Checkbox, Form, Input, message } from 'antd';
+import { Button, Checkbox, Form, Input, message, Select } from 'antd';
 import React from 'react';
 import { api } from '../../services/apiConfig';
 import loginPic from "../HomePage/images/loginPic.png";
@@ -89,10 +89,15 @@ const SignUp = () => {
       <Form.Item
         label="Giới tính"
         name="gender"
-        rules={[{ required: true, message: 'Nhập giới tính của bạn' }]}
+        rules={[{ required: true, message: 'Vui lòng chọn giới tính của bạn' }]}
       >
-        <Input placeholder="Nhập giới tính của bạn" />
+        <Select placeholder="Chọn giới tính">
+          <Select.Option value="Nam">Nam</Select.Option>
+          <Select.Option value="Nữ">Nữ</Select.Option>
+          <Select.Option value="Khác">Khác</Select.Option>
+        </Select>
       </Form.Item>
+
 
       <Form.Item
         name="remember"
